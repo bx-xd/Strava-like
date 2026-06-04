@@ -341,7 +341,9 @@
     <div class="gps-status">
       <div class="gps-dot" id="gpsDot"></div>
       <span id="gpsStatusText">En attente du GPS…</span>
+      <button onclick="testGps()" style="margin-left:auto;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;padding:4px 8px;cursor:pointer">🔍 Debug</button>
     </div>
+    <div id="gpsDebug" style="display:none;background:#1a0a00;border:1px solid rgba(255,77,0,.3);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;color:#ff7a33;margin-bottom:10px;line-height:1.6;word-break:break-all"></div>
     <div class="record-stats">
       <div class="rec-stat"><div class="rec-stat-val" id="recDist">0.00</div><div class="rec-stat-key">km</div></div>
       <div class="rec-stat"><div class="rec-stat-val" id="recTime">00:00</div><div class="rec-stat-key">durée</div></div>
@@ -788,6 +790,43 @@ function initRecordPage() {
     recordMap.setView([48.1, -1.7], 13); // Rennes par défaut
   }
   setTimeout(() => recordMap.invalidateSize(), 100);
+}
+
+function gpsDebugLog(msg) {
+  const el = document.getElementById('gpsDebug');
+  el.style.display = 'block';
+  el.innerHTML += msg + '<br>';
+}
+function testGps() {
+  const el = document.getElementById('gpsDebug');
+  el.style.display = 'block';
+  el.innerHTML = '';
+  gpsDebugLog('🌐 Protocol: ' + location.protocol);
+  gpsDebugLog('📍 geolocation in navigator: ' + ('geolocation' in navigator));
+  if (!('geolocation' in navigator)) { gpsDebugLog('❌ API Geolocation absente'); return; }
+  gpsDebugLog('🔑 Demande de permission…');
+  navigator.permissions?.query({name:'geolocation'}).then(p => {
+    gpsDebugLog('🔒 Permission state: ' + p.state);
+  }).catch(e => gpsDebugLog('⚠️ permissions API: ' + e));
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      gpsDebugLog('✅ Position obtenue !');
+      gpsDebugLog('  lat: ' + pos.coords.latitude.toFixed(6));
+      gpsDebugLog('  lng: ' + pos.coords.longitude.toFixed(6));
+      gpsDebugLog('  accuracy: ±' + Math.round(pos.coords.accuracy) + 'm');
+      gpsDebugLog('  altitude: ' + pos.coords.altitude);
+      document.getElementById('gpsDot').className = 'gps-dot good';
+      document.getElementById('gpsStatusText').textContent = '✅ GPS OK — précision ±' + Math.round(pos.coords.accuracy) + 'm';
+    },
+    err => {
+      const codes = {1:'PERMISSION_DENIED',2:'POSITION_UNAVAILABLE',3:'TIMEOUT'};
+      gpsDebugLog('❌ Erreur: ' + (codes[err.code]||err.code));
+      gpsDebugLog('   Message: ' + err.message);
+      document.getElementById('gpsStatusText').textContent = '❌ ' + (codes[err.code]||'Erreur GPS');
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
 }
 
 function toggleRecording() {
