@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MyStrava</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f; --bg2: #12121a; --bg3: #1a1a26; --border: #2a2a3a;
+    --accent: #ff4d00; --accent2: #ff7a33; --text: #f0f0f5; --muted: #6b6b85;
+    --green: #00e676; --blue: #2979ff; --purple: #aa00ff; --yellow: #ffd600;
+    --radius: 14px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100dvh; overflow-x: hidden;
+    padding-bottom: calc(72px + var(--safe-bottom));
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.92); backdrop-filter: blur(20px);
+    padding: calc(var(--safe-top) + 14px) 20px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 2px; color: var(--accent); }
+  .topbar-actions { display: flex; gap: 10px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: none;
+    background: var(--bg3); color: var(--text); font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: background .15s;
+  }
+  .icon-btn:active { background: var(--border); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border); display: flex;
+    padding-bottom: var(--safe-bottom); z-index: 100;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0 8px; font-size: 10px; font-weight: 500; color: var(--muted);
+    cursor: pointer; transition: color .15s; border: none; background: none;
+    letter-spacing: .5px; text-transform: uppercase; gap: 4px;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-fab { flex: none; display: flex; align-items: center; justify-content: center; padding: 0; margin: -10px 0 0; }
+  .fab-btn {
+    width: 56px; height: 56px; border-radius: 50%; background: var(--accent);
+    border: 3px solid var(--bg); color: white; font-size: 26px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(255,77,0,.5); transition: transform .15s, box-shadow .15s;
+  }
+  .fab-btn:active { transform: scale(.94); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SECTIONS */
+  .section { padding: 20px; }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 14px;
+    letter-spacing: 2.5px; color: var(--muted); margin-bottom: 14px;
+  }
+
+  /* WEEK HERO */
+  .week-hero {
+    background: linear-gradient(135deg, #1a0a00, #2a1200, #1a0a00);
+    border: 1px solid rgba(255,77,0,.2); border-radius: var(--radius);
+    padding: 22px; margin-bottom: 16px; position: relative; overflow: hidden;
+  }
+  .week-hero::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(255,77,0,.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .week-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .week-dist { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; letter-spacing: 1px; }
+  .week-dist span { font-size: 22px; color: var(--muted); margin-left: 4px; }
+  .week-meta { display: flex; gap: 20px; margin-top: 12px; }
+  .week-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .week-meta-val { font-size: 17px; font-weight: 600; }
+  .week-meta-key { font-size: 11px; color: var(--muted); }
+
+  /* STATS GRID */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+  .stat-icon { font-size: 20px; margin-bottom: 8px; }
+  .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: .5px; line-height: 1; }
+  .stat-key { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; }
+
+  /* ACTIVITY CARDS */
+  .activity-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .activity-card:active { background: var(--bg3); border-color: var(--accent); }
+  .activity-card.has-gps { border-left: 3px solid var(--accent); }
+  .activity-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .activity-info { flex: 1; min-width: 0; }
+  .activity-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .activity-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .activity-stats { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+  .activity-stat { font-size: 13px; font-weight: 500; }
+  .activity-stat span { color: var(--muted); font-size: 11px; font-weight: 400; }
+  .activity-delete { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0; }
+  .activity-delete:active { color: #ff3b30; }
+  .gps-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); background: rgba(255,77,0,.1); border-radius: 4px; padding: 2px 6px; margin-top: 4px; }
+
+  /* CHART */
+  .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+  .chart-card canvas { max-height: 160px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+    z-index: 200; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 20px 20px 0 0;
+    padding: 0 20px calc(20px + var(--safe-bottom)); width: 100%;
+    max-height: 92dvh; overflow-y: auto;
+    transform: translateY(40px); transition: transform .3s cubic-bezier(.32,.72,0,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 20px; }
+  .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1.5px; margin-bottom: 20px; color: var(--accent); }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .form-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px;
+    padding: 12px 14px; outline: none; transition: border-color .15s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .sport-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sport-btn {
+    background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 10px 6px; cursor: pointer; text-align: center;
+    transition: border-color .15s, background .15s;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+  }
+  .sport-btn .sport-emoji { font-size: 22px; }
+  .sport-btn.selected { border-color: var(--accent); background: rgba(255,77,0,.12); color: var(--accent); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-primary {
+    width: 100%; background: var(--accent); border: none; border-radius: 12px;
+    color: white; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px;
+    padding: 16px; cursor: pointer; transition: opacity .15s, transform .1s; margin-top: 4px;
+  }
+  .btn-primary:active { opacity: .85; transform: scale(.98); }
+  .btn-secondary {
+    width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 12px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    padding: 13px; cursor: pointer; transition: background .15s; margin-top: 8px;
+  }
+  .btn-secondary:active { background: var(--border); }
+
+  /* SPORT COLORS */
+  .sport-run    { background: rgba(0,230,118,.12); }
+  .sport-velo   { background: rgba(41,121,255,.12); }
+  .sport-nage   { background: rgba(0,188,212,.12); }
+  .sport-marche { background: rgba(255,214,0,.12); }
+  .sport-ski    { background: rgba(255,255,255,.08); }
+  .sport-autre  { background: rgba(170,0,255,.12); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: calc(80px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg3); border: 1px solid var(--accent); border-radius: 30px;
+    padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--text);
+    z-index: 300; opacity: 0; transition: opacity .2s, transform .2s; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* FILTERS */
+  .filter-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin-bottom: 14px; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 20px;
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 6px 14px; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* PROGRESS */
+  .progress-period { display: flex; gap: 8px; margin-bottom: 16px; }
+  .period-btn {
+    flex: 1; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 8px 4px; cursor: pointer; transition: all .15s;
+  }
+  .period-btn.active { background: rgba(255,77,0,.12); border-color: var(--accent); color: var(--accent); }
+
+  #history-list { padding: 0 20px 10px; }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    margin: 0 20px 10px;
+    background: linear-gradient(135deg, rgba(255,77,0,.1), rgba(255,77,0,.05));
+    border: 1px solid rgba(255,77,0,.3); border-radius: var(--radius);
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .install-banner-text { flex: 1; font-size: 13px; line-height: 1.4; }
+  .install-banner-text strong { color: var(--accent); }
+  .install-btn { background: var(--accent); border: none; border-radius: 8px; color: white; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; padding: 8px 14px; cursor: pointer; flex-shrink: 0; }
+  .install-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 0 0 0 8px; }
+
+  /* ══════════════════════════
+     GPS RECORDING SCREEN
+  ══════════════════════════ */
+  #page-record { display: none; }
+  #page-record.active { display: flex; flex-direction: column; height: calc(100dvh - calc(72px + var(--safe-bottom))); }
+
+  #record-map {
+    flex: 1;
+    z-index: 0;
+  }
+
+  /* Leaflet dark tiles */
+  .leaflet-tile { filter: brightness(.85) saturate(.9); }
+
+  .record-hud {
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 16px 20px calc(4px + var(--safe-bottom));
+    flex-shrink: 0;
+  }
+  .record-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;
+  }
+  .rec-stat { text-align: center; }
+  .rec-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: .5px; line-height: 1; }
+  .rec-stat-key { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .record-actions { display: flex; gap: 10px; }
+
+  .btn-record {
+    flex: 1; border: none; border-radius: 12px; font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 2px; padding: 14px; cursor: pointer;
+    transition: transform .1s, opacity .15s;
+  }
+  .btn-record:active { transform: scale(.96); opacity: .85; }
+  .btn-record.start { background: var(--green); color: #000; }
+  .btn-record.pause { background: var(--yellow); color: #000; }
+  .btn-record.stop  { background: #ff3b30; color: white; flex: none; width: 56px; border-radius: 50%; font-size: 16px; }
+
+  /* GPS status dot */
+  .gps-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted); margin-bottom: 12px;
+  }
+  .gps-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+  .gps-dot.good { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s infinite; }
+  .gps-dot.searching { background: var(--yellow); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* TRACÉ MINIMAP in activity card */
+  .mini-map { height: 120px; border-radius: 10px; overflow: hidden; margin-top: 10px; pointer-events: none; }
+
+  /* Detail modal map */
+  #detail-map { height: 220px; border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">MyStrava</div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="exportData()" title="Exporter">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="install-banner" id="installBanner" style="display:none">
+  <div>📲</div>
+  <div class="install-banner-text"><strong>Installer MyStrava</strong><br>Ajouter à l'écran d'accueil</div>
+  <button class="install-btn" onclick="installPWA()">Installer</button>
+  <button class="install-close" onclick="document.getElementById('installBanner').style.display='none'">×</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="section">
+    <div class="week-hero">
+      <div class="week-label">Cette semaine</div>
+      <div class="week-dist" id="weekDist">0<span>km</span></div>
+      <div class="week-meta" id="weekMeta"></div>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+  <div class="section" style="padding-top:0">
+    <div class="section-title">Récentes</div>
+    <div id="recentList"></div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="page-history" class="page">
+  <div class="section" style="padding-bottom:10px">
+    <div class="section-title">Historique</div>
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<!-- GPS RECORD -->
+<div id="page-record" class="page">
+  <div id="record-map"></div>
+  <div class="record-hud">
+    <div class="gps-status">
+      <div class="gps-dot" id="gpsDot"></div>
+      <span id="gpsStatusText">En attente du GPS…</span>
+    </div>
+    <div class="record-stats">
+      <div class="rec-stat"><div class="rec-stat-val" id="recDist">0.00</div><div class="rec-stat-key">km</div></div>
+      <div class="rec-stat"><div class="rec-stat-val" id="recTime">00:00</div><div class="rec-stat-key">durée</div></div>
+      <div class="rec-stat"><div class="rec-stat-val" id="recPace">—</div><div class="rec-stat-key">min/km</div></div>
+      <div class="rec-stat"><div class="rec-stat-val" id="recElev">0</div><div class="rec-stat-key">dénivelé m</div></div>
+    </div>
+    <div class="record-actions">
+      <button class="btn-record start" id="btnStartPause" onclick="toggleRecording()">▶ Démarrer</button>
+      <button class="btn-record stop" id="btnStop" onclick="stopRecording()" style="display:none" title="Terminer">■</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="page-progress" class="page">
+  <div class="section">
+    <div class="section-title">Progression</div>
+    <div class="progress-period">
+      <button class="period-btn active" onclick="setPeriod('week',this)">7j</button>
+      <button class="period-btn" onclick="setPeriod('month',this)">30j</button>
+      <button class="period-btn" onclick="setPeriod('year',this)">1an</button>
+    </div>
+    <div class="chart-card">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Distance (km)</div>
+      <canvas id="distChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Dénivelé (m)</div>
+      <canvas id="elevChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Sports</div>
+      <canvas id="sportChart" style="max-height:180px"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('dashboard',this)" id="nav-dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Tableau
+  </button>
+  <button class="nav-item" onclick="showPage('history',this)" id="nav-history">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Historique
+  </button>
+  <button class="nav-fab" onclick="showPage('record',this)">
+    <div class="fab-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><circle cx="12" cy="12" r="3" fill="white" stroke="none"/><circle cx="12" cy="12" r="9"/></svg>
+    </div>
+  </button>
+  <button class="nav-item" onclick="showPage('progress',this)" id="nav-progress">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Stats
+  </button>
+  <button class="nav-item" onclick="openManualModal()" id="nav-manual">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Manuel
+  </button>
+</nav>
+
+<!-- MANUAL ADD MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Saisie manuelle</div>
+    <div class="form-group">
+      <label class="form-label">Sport</label>
+      <div class="sport-grid" id="sportGrid"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Titre</label>
+      <input class="form-input" id="inputTitle" type="text" placeholder="Mon activité...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input class="form-input" id="inputDate" type="date">
+    </div>
+    <div class="input-row">
+      <div class="form-group">
+        <label class="form-label">Distance (km)</label>
+        <input class="form-input" id="inputDist" type="number" min="0" step="0.1" placeholder="0.0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Durée (min)</label>
+        <input class="form-input" id="inputDuration" type="number" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="form-group">
+        <label class="form-label">Dénivelé (m)</label>
+        <input class="form-input" id="inputElev" type="number" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">FC moyenne</label>
+        <input class="form-input" id="inputHR" type="number" min="0" placeholder="bpm">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" id="inputNotes" type="text" placeholder="Sensation, météo...">
+    </div>
+    <button class="btn-primary" onclick="saveActivity()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- SAVE GPS MODAL -->
+<div class="modal-overlay" id="saveGpsModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Enregistrer l'activité</div>
+    <div id="gpsSummaryBox" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    <div class="form-group">
+      <label class="form-label">Sport</label>
+      <div class="sport-grid" id="gpsSportGrid"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Titre</label>
+      <input class="form-input" id="gpsTitleInput" type="text" placeholder="Mon activité GPS...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" id="gpsNotesInput" type="text" placeholder="Sensation, météo...">
+    </div>
+    <button class="btn-primary" onclick="confirmSaveGps()">💾 Sauvegarder</button>
+    <button class="btn-secondary" onclick="discardGps()">Supprimer le tracé</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal" onclick="closeDetailIfOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════
+//  CONSTANTS & STATE
+// ═══════════════════════════════
+const SPORTS = [
+  { id:'run',    emoji:'🏃', label:'Course',   cls:'sport-run' },
+  { id:'velo',   emoji:'🚴', label:'Vélo',     cls:'sport-velo' },
+  { id:'nage',   emoji:'🏊', label:'Natation', cls:'sport-nage' },
+  { id:'marche', emoji:'🚶', label:'Marche',   cls:'sport-marche' },
+  { id:'ski',    emoji:'⛷️', label:'Ski',      cls:'sport-ski' },
+  { id:'autre',  emoji:'⚡', label:'Autre',    cls:'sport-autre' },
+];
+
+let activities = [];
+let currentFilter = 'all';
+let currentPeriod = 'week';
+let charts = {};
+let selectedSport = 'run';
+let gpsSport = 'run';
+let deferredInstall = null;
+
+// GPS recording state
+let isRecording = false;
+let isPaused = false;
+let geoWatchId = null;
+let recordPoints = []; // [{lat, lng, alt, ts}]
+let recordStartTs = null;
+let recordPausedMs = 0;
+let pauseStartTs = null;
+let timerInterval = null;
+let recordMap = null;
+let recordPolyline = null;
+let recordMarker = null;
+let lastAlt = null;
+let totalElevGain = 0;
+
+// Pending GPS save
+let pendingGpsData = null;
+
+// ═══════════════════════════════
+//  INDEXED DB
+// ═══════════════════════════════
+let db = null;
+
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('mystrava', 2);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('activities')) d.createObjectStore('activities', { keyPath:'id' });
+      if (!d.objectStoreNames.contains('traces')) d.createObjectStore('traces', { keyPath:'id' });
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbPut(store, obj) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(obj);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbDelete(store, id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(id);
+    req.onsuccess = () => res();
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbGet(store, id) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(id);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+// ═══════════════════════════════
+//  HELPERS
+// ═══════════════════════════════
+function sportById(id) { return SPORTS.find(s => s.id === id) || SPORTS[5]; }
+
+function fmt(n, dec=1) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Number(n).toFixed(dec).replace(/\.0$/, '');
+}
+function fmtPace(distKm, durMin) {
+  if (!distKm || !durMin || distKm <= 0) return '—';
+  const s = (durMin * 60) / distKm;
+  return `${Math.floor(s/60)}'${String(Math.round(s%60)).padStart(2,'0')}"`;
+}
+function fmtDur(min) {
+  if (!min) return '—';
+  const h = Math.floor(min/60), m = Math.round(min%60);
+  return h > 0 ? `${h}h${String(m).padStart(2,'0')}` : `${m}min`;
+}
+function fmtSecs(sec) {
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function fmtDate(str) {
+  return new Date(str).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
+}
+function isoToday() { return new Date().toISOString().slice(0,10); }
+function startOfWeek() {
+  const d = new Date();
+  d.setDate(d.getDate() - ((d.getDay()||7)-1));
+  d.setHours(0,0,0,0);
+  return d;
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// Haversine distance in km
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function totalDistance(points) {
+  let d = 0;
+  for (let i = 1; i < points.length; i++) d += haversine(points[i-1].lat, points[i-1].lng, points[i].lat, points[i].lng);
+  return d;
+}
+
+// ═══════════════════════════════
+//  PAGES
+// ═══════════════════════════════
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item, .nav-fab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'history') renderHistory();
+  if (name === 'progress') renderProgress();
+  if (name === 'record') initRecordPage();
+}
+
+// ═══════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════
+function renderDashboard() {
+  const week = startOfWeek();
+  const wa = activities.filter(a => new Date(a.date) >= week);
+  const wDist = wa.reduce((s,a)=>s+(+a.dist||0),0);
+  const wTime = wa.reduce((s,a)=>s+(+a.duration||0),0);
+  const wElev = wa.reduce((s,a)=>s+(+a.elev||0),0);
+
+  document.getElementById('weekDist').innerHTML = `${fmt(wDist)}<span>km</span>`;
+  document.getElementById('weekMeta').innerHTML = `
+    <div class="week-meta-item"><div class="week-meta-val">${fmtDur(wTime)}</div><div class="week-meta-key">Durée</div></div>
+    <div class="week-meta-item"><div class="week-meta-val">${wElev>0?wElev+'m':'—'}</div><div class="week-meta-key">Dénivelé</div></div>
+    <div class="week-meta-item"><div class="week-meta-val">${wa.length}</div><div class="week-meta-key">Sorties</div></div>
+  `;
+  const tDist = activities.reduce((s,a)=>s+(+a.dist||0),0);
+  const tActs = activities.length;
+  const tElev = activities.reduce((s,a)=>s+(+a.elev||0),0);
+  const tTime = activities.reduce((s,a)=>s+(+a.duration||0),0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon">📏</div><div class="stat-val">${fmt(tDist)}<span style="font-size:14px;color:var(--muted)">km</span></div><div class="stat-key">Distance totale</div></div>
+    <div class="stat-card"><div class="stat-icon">🏅</div><div class="stat-val">${tActs}</div><div class="stat-key">Activités</div></div>
+    <div class="stat-card"><div class="stat-icon">⛰️</div><div class="stat-val">${tElev}<span style="font-size:14px;color:var(--muted)">m</span></div><div class="stat-key">Dénivelé cumulé</div></div>
+    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-val" style="font-size:20px">${fmtDur(tTime)}</div><div class="stat-key">Temps total</div></div>
+  `;
+  const recent = [...activities].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3);
+  const el = document.getElementById('recentList');
+  el.innerHTML = recent.length
+    ? recent.map(a => activityCardHTML(a)).join('')
+    : `<div class="empty"><div class="empty-icon">🏃</div><div class="empty-title">Aucune activité</div><div style="font-size:14px;color:var(--muted)">Appuie sur ⏺ pour commencer</div></div>`;
+}
+
+function activityCardHTML(a) {
+  const sp = sportById(a.sport);
+  const showPace = (a.sport==='run'||a.sport==='marche') && a.dist && a.duration;
+  const showSpeed = a.sport==='velo' && a.dist && a.duration;
+  return `<div class="activity-card ${a.hasTrace?'has-gps':''}" onclick="openDetail('${a.id}')">
+    <div class="activity-icon ${sp.cls}">${sp.emoji}</div>
+    <div class="activity-info">
+      <div class="activity-name">${a.title||sp.label}</div>
+      <div class="activity-date">${fmtDate(a.date)}${a.hasTrace?' <span class="gps-badge">📍 GPS</span>':''}</div>
+      <div class="activity-stats">
+        ${a.dist?`<div class="activity-stat">${fmt(a.dist)} <span>km</span></div>`:''}
+        ${a.duration?`<div class="activity-stat">${fmtDur(+a.duration)}</div>`:''}
+        ${showPace?`<div class="activity-stat">${fmtPace(+a.dist,+a.duration)} <span>/km</span></div>`:''}
+        ${showSpeed?`<div class="activity-stat">${fmt(+a.dist/(+a.duration/60),1)} <span>km/h</span></div>`:''}
+        ${a.elev?`<div class="activity-stat">↑${a.elev}<span>m</span></div>`:''}
+        ${a.hr?`<div class="activity-stat">♥ ${a.hr}<span>bpm</span></div>`:''}
+      </div>
+    </div>
+    <button class="activity-delete" onclick="deleteActivity('${a.id}',event)">×</button>
+  </div>`;
+}
+
+// ═══════════════════════════════
+//  HISTORY
+// ═══════════════════════════════
+function renderHistory() {
+  document.getElementById('filterRow').innerHTML = ['all',...SPORTS.map(s=>s.id)].map(id => {
+    const sp = id==='all'?{emoji:'🗓️',label:'Tout'}:sportById(id);
+    return `<button class="filter-chip ${currentFilter===id?'active':''}" onclick="setFilter('${id}')">${sp.emoji} ${sp.label}</button>`;
+  }).join('');
+  const filtered = activities.filter(a=>currentFilter==='all'||a.sport===currentFilter).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('history-list').innerHTML = filtered.length
+    ? filtered.map(a=>activityCardHTML(a)).join('')
+    : `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucune activité</div></div>`;
+}
+function setFilter(id) { currentFilter=id; renderHistory(); }
+
+// ═══════════════════════════════
+//  PROGRESS
+// ═══════════════════════════════
+function setPeriod(p, btn) {
+  currentPeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProgress();
+}
+function renderProgress() {
+  const now = new Date();
+  const days = currentPeriod==='week'?7:currentPeriod==='month'?30:365;
+  const since = new Date(now); since.setDate(since.getDate()-days+1); since.setHours(0,0,0,0);
+  const filtered = activities.filter(a=>new Date(a.date)>=since);
+  let labels=[], distData=[], elevData=[];
+
+  if (currentPeriod==='week') {
+    for (let i=days-1;i>=0;i--) {
+      const d=new Date(now); d.setDate(d.getDate()-i);
+      const key=d.toISOString().slice(0,10);
+      labels.push(['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()]);
+      const da=filtered.filter(a=>a.date===key);
+      distData.push(da.reduce((s,a)=>s+(+a.dist||0),0));
+      elevData.push(da.reduce((s,a)=>s+(+a.elev||0),0));
+    }
+  } else if (currentPeriod==='month') {
+    for (let i=days-1;i>=0;i--) {
+      const d=new Date(now); d.setDate(d.getDate()-i);
+      const key=d.toISOString().slice(0,10);
+      labels.push(i%5===0?d.getDate()+'/'+(d.getMonth()+1):'');
+      const da=filtered.filter(a=>a.date===key);
+      distData.push(da.reduce((s,a)=>s+(+a.dist||0),0));
+      elevData.push(da.reduce((s,a)=>s+(+a.elev||0),0));
+    }
+  } else {
+    for (let i=11;i>=0;i--) {
+      const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+      labels.push(['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][d.getMonth()]);
+      const ma=filtered.filter(a=>{const ad=new Date(a.date);return ad.getFullYear()===d.getFullYear()&&ad.getMonth()===d.getMonth();});
+      distData.push(ma.reduce((s,a)=>s+(+a.dist||0),0));
+      elevData.push(ma.reduce((s,a)=>s+(+a.elev||0),0));
+    }
+  }
+
+  const opts = { responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{size:10}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#6b6b85',font:{size:10}},beginAtZero:true} } };
+  const ds = (data,color) => ({ data, backgroundColor:color+'33', borderColor:color, borderWidth:1.5, borderRadius:4 });
+
+  ['dist','elev','sport'].forEach(k=>{ if(charts[k]){charts[k].destroy();delete charts[k];} });
+
+  charts.dist = new Chart(document.getElementById('distChart'), { type:'bar', data:{labels,datasets:[ds(distData,'#ff4d00')]}, options:opts });
+  charts.elev = new Chart(document.getElementById('elevChart'), { type:'bar', data:{labels,datasets:[ds(elevData,'#2979ff')]}, options:opts });
+
+  const sc={};
+  filtered.forEach(a=>{sc[a.sport]=(sc[a.sport]||0)+1;});
+  const colorMap={run:'#00e676',velo:'#2979ff',nage:'#00bcd4',marche:'#ffd600',ski:'#e0e0e0',autre:'#aa00ff'};
+  charts.sport = new Chart(document.getElementById('sportChart'), {
+    type:'doughnut',
+    data:{labels:Object.keys(sc).map(id=>sportById(id).emoji+' '+sportById(id).label), datasets:[{data:Object.values(sc),backgroundColor:Object.keys(sc).map(id=>colorMap[id]||'#888'),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'right',labels:{color:'#f0f0f5',font:{size:11},boxWidth:12,padding:10}}}}
+  });
+}
+
+// ═══════════════════════════════
+//  RECORD PAGE
+// ═══════════════════════════════
+function initRecordPage() {
+  if (!recordMap) {
+    recordMap = L.map('record-map', { zoomControl:false, attributionControl:false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(recordMap);
+    L.control.attribution({ prefix:false }).addTo(recordMap);
+    recordMap.setView([48.1, -1.7], 13); // Rennes par défaut
+  }
+  setTimeout(() => recordMap.invalidateSize(), 100);
+}
+
+function toggleRecording() {
+  if (!isRecording && !isPaused) {
+    startRecording();
+  } else if (isRecording && !isPaused) {
+    pauseRecording();
+  } else if (isPaused) {
+    resumeRecording();
+  }
+}
+
+function startRecording() {
+  if (!navigator.geolocation) { toast('❌ GPS non disponible'); return; }
+
+  recordPoints = [];
+  recordStartTs = Date.now();
+  recordPausedMs = 0;
+  totalElevGain = 0;
+  lastAlt = null;
+  isRecording = true;
+  isPaused = false;
+
+  // Clear map
+  if (recordPolyline) { recordMap.removeLayer(recordPolyline); recordPolyline = null; }
+  if (recordMarker) { recordMap.removeLayer(recordMarker); recordMarker = null; }
+  recordPolyline = L.polyline([], { color:'#ff4d00', weight:4, opacity:.9 }).addTo(recordMap);
+
+  document.getElementById('btnStartPause').className = 'btn-record pause';
+  document.getElementById('btnStartPause').textContent = '⏸ Pause';
+  document.getElementById('btnStop').style.display = 'flex';
+
+  // GPS watch
+  geoWatchId = navigator.geolocation.watchPosition(onGpsUpdate, onGpsError, {
+    enableHighAccuracy: true, timeout: 10000, maximumAge: 0
+  });
+
+  // Timer
+  timerInterval = setInterval(updateHUD, 1000);
+  toast('📍 Enregistrement démarré');
+}
+
+function pauseRecording() {
+  isPaused = true;
+  pauseStartTs = Date.now();
+  if (geoWatchId !== null) { navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+  clearInterval(timerInterval);
+  document.getElementById('btnStartPause').className = 'btn-record start';
+  document.getElementById('btnStartPause').textContent = '▶ Reprendre';
+  document.getElementById('gpsDot').className = 'gps-dot searching';
+  document.getElementById('gpsStatusText').textContent = 'En pause';
+  toast('⏸ Pause');
+}
+
+function resumeRecording() {
+  if (pauseStartTs) { recordPausedMs += Date.now() - pauseStartTs; pauseStartTs = null; }
+  isPaused = false;
+  geoWatchId = navigator.geolocation.watchPosition(onGpsUpdate, onGpsError, {
+    enableHighAccuracy: true, timeout: 10000, maximumAge: 0
+  });
+  timerInterval = setInterval(updateHUD, 1000);
+  document.getElementById('btnStartPause').className = 'btn-record pause';
+  document.getElementById('btnStartPause').textContent = '⏸ Pause';
+  toast('▶ Reprise');
+}
+
+function stopRecording() {
+  if (!isRecording && !isPaused) return;
+  if (recordPoints.length < 2) { toast('⚠️ Pas assez de points GPS'); discardRecording(); return; }
+
+  isRecording = false; isPaused = false;
+  if (geoWatchId !== null) { navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+  clearInterval(timerInterval);
+
+  document.getElementById('btnStartPause').className = 'btn-record start';
+  document.getElementById('btnStartPause').textContent = '▶ Démarrer';
+  document.getElementById('btnStop').style.display = 'none';
+  document.getElementById('gpsDot').className = 'gps-dot';
+  document.getElementById('gpsStatusText').textContent = 'En attente du GPS…';
+
+  // Compute final stats
+  const distKm = totalDistance(recordPoints);
+  const durMs = (Date.now() - recordStartTs) - recordPausedMs;
+  const durMin = durMs / 60000;
+
+  pendingGpsData = {
+    points: recordPoints,
+    distKm,
+    durMin,
+    elevGain: totalElevGain,
+  };
+
+  openSaveGpsModal(distKm, durMin);
+}
+
+function discardRecording() {
+  isRecording = false; isPaused = false;
+  if (geoWatchId !== null) { navigator.geolocation.clearWatch(geoWatchId); geoWatchId = null; }
+  clearInterval(timerInterval);
+  if (recordPolyline) { recordMap.removeLayer(recordPolyline); recordPolyline = null; }
+  if (recordMarker) { recordMap.removeLayer(recordMarker); recordMarker = null; }
+  document.getElementById('btnStartPause').className = 'btn-record start';
+  document.getElementById('btnStartPause').textContent = '▶ Démarrer';
+  document.getElementById('btnStop').style.display = 'none';
+  document.getElementById('gpsDot').className = 'gps-dot';
+  document.getElementById('gpsStatusText').textContent = 'En attente du GPS…';
+  document.getElementById('recDist').textContent = '0.00';
+  document.getElementById('recTime').textContent = '00:00';
+  document.getElementById('recPace').textContent = '—';
+  document.getElementById('recElev').textContent = '0';
+}
+
+function onGpsUpdate(pos) {
+  const { latitude:lat, longitude:lng, altitude:alt, accuracy } = pos.coords;
+
+  document.getElementById('gpsDot').className = 'gps-dot ' + (accuracy < 20 ? 'good' : 'searching');
+  document.getElementById('gpsStatusText').textContent = `Précision ±${Math.round(accuracy)}m`;
+
+  if (!isRecording || isPaused) return;
+
+  // Filter noisy points (accuracy > 50m)
+  if (accuracy > 50) return;
+
+  // Elevation gain
+  if (alt !== null) {
+    if (lastAlt !== null && alt > lastAlt + 1) totalElevGain += (alt - lastAlt);
+    lastAlt = alt;
+  }
+
+  recordPoints.push({ lat, lng, alt, ts: Date.now() });
+
+  // Update polyline
+  recordPolyline.addLatLng([lat, lng]);
+
+  // Update/move marker
+  if (!recordMarker) {
+    recordMarker = L.circleMarker([lat, lng], { radius:8, color:'#ff4d00', fillColor:'#ff4d00', fillOpacity:1, weight:2 }).addTo(recordMap);
+  } else {
+    recordMarker.setLatLng([lat, lng]);
+  }
+
+  // Center map on position
+  recordMap.setView([lat, lng], Math.max(recordMap.getZoom(), 16));
+
+  updateHUD();
+}
+
+function onGpsError(err) {
+  document.getElementById('gpsDot').className = 'gps-dot';
+  document.getElementById('gpsStatusText').textContent = 'Signal GPS perdu…';
+}
+
+function updateHUD() {
+  const distKm = totalDistance(recordPoints);
+  const elapsed = recordStartTs ? Math.floor(((isPaused ? pauseStartTs : Date.now()) - recordStartTs - recordPausedMs) / 1000) : 0;
+  const durMin = elapsed / 60;
+
+  document.getElementById('recDist').textContent = distKm.toFixed(2);
+  document.getElementById('recTime').textContent = fmtSecs(elapsed);
+  document.getElementById('recPace').textContent = distKm > 0.1 ? fmtPace(distKm, durMin) : '—';
+  document.getElementById('recElev').textContent = Math.round(totalElevGain);
+}
+
+// ═══════════════════════════════
+//  SAVE GPS MODAL
+// ═══════════════════════════════
+function openSaveGpsModal(distKm, durMin) {
+  gpsSport = 'run';
+  document.getElementById('gpsTitleInput').value = '';
+  document.getElementById('gpsNotesInput').value = '';
+  document.getElementById('gpsSportGrid').innerHTML = SPORTS.map(sp =>
+    `<button class="sport-btn ${sp.id===gpsSport?'selected':''}" onclick="selectGpsSport('${sp.id}')">\n      <span class="sport-emoji">${sp.emoji}</span>${sp.label}\n    </button>`
+  ).join('');
+  document.getElementById('gpsSummaryBox').innerHTML = `
+    <div><div style="font-family:'Bebas Neue';font-size:26px">${distKm.toFixed(2)}<span style="font-size:14px;color:var(--muted)"> km</span></div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Distance</div></div>
+    <div><div style="font-family:'Bebas Neue';font-size:26px">${fmtDur(durMin)}</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Durée</div></div>
+    <div><div style="font-family:'Bebas Neue';font-size:26px">${fmtPace(distKm,durMin)}</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Allure</div></div>
+    <div><div style="font-family:'Bebas Neue';font-size:26px">${Math.round(totalElevGain)}<span style="font-size:14px;color:var(--muted)"> m</span></div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Dénivelé</div></div>
+  `;
+  document.getElementById('saveGpsModal').classList.add('open');
+}
+function selectGpsSport(id) {
+  gpsSport = id;
+  document.getElementById('gpsSportGrid').innerHTML = SPORTS.map(sp =>
+    `<button class="sport-btn ${sp.id===gpsSport?'selected':''}" onclick="selectGpsSport('${sp.id}')">\n      <span class="sport-emoji">${sp.emoji}</span>${sp.label}\n    </button>`
+  ).join('');
+}
+async function confirmSaveGps() {
+  if (!pendingGpsData) return;
+  const { points, distKm, durMin, elevGain } = pendingGpsData;
+  const sp = sportById(gpsSport);
+  const id = genId();
+  const act = {
+    id, sport: gpsSport,
+    title: document.getElementById('gpsTitleInput').value || sp.label,
+    date: isoToday(),
+    dist: Math.round(distKm * 100) / 100,
+    duration: Math.round(durMin),
+    elev: Math.round(elevGain) || null,
+    hr: null,
+    notes: document.getElementById('gpsNotesInput').value || null,
+    hasTrace: true,
+  };
+  // Save trace to IndexedDB
+  await dbPut('traces', { id, points });
+  activities.push(act);
+  await dbPut('activities', act);
+
+  pendingGpsData = null;
+  document.getElementById('saveGpsModal').classList.remove('open');
+  toast('✅ Activité GPS sauvegardée !');
+  showPage('dashboard', document.getElementById('nav-dashboard'));
+}
+function discardGps() {
+  pendingGpsData = null;
+  document.getElementById('saveGpsModal').classList.remove('open');
+  toast('🗑️ Tracé supprimé');
+}
+
+// ═══════════════════════════════
+//  DETAIL MODAL
+// ═══════════════════════════════
+async function openDetail(id) {
+  const a = activities.find(x=>x.id===id);
+  if (!a) return;
+  const sp = sportById(a.sport);
+  const showPace = (a.sport==='run'||a.sport==='marche') && a.dist && a.duration;
+  const showSpeed = a.sport==='velo' && a.dist && a.duration;
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="modal-title" style="display:flex;align-items:center;gap:10px">
+      <span>${sp.emoji}</span>${a.title||sp.label}
+    </div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:16px">${fmtDate(a.date)}</div>
+    ${a.hasTrace ? '<div id="detail-map"></div>' : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      ${a.dist?`<div class="stat-card"><div class="stat-icon">📏</div><div class="stat-val">${fmt(a.dist)}<span style="font-size:14px;color:var(--muted)">km</span></div><div class="stat-key">Distance</div></div>`:''}
+      ${a.duration?`<div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-val" style="font-size:20px">${fmtDur(+a.duration)}</div><div class="stat-key">Durée</div></div>`:''}
+      ${showPace?`<div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-val" style="font-size:20px">${fmtPace(+a.dist,+a.duration)}</div><div class="stat-key">Allure /km</div></div>`:''}
+      ${showSpeed?`<div class="stat-card"><div class="stat-icon">💨</div><div class="stat-val">${fmt(+a.dist/(+a.duration/60),1)}<span style="font-size:14px;color:var(--muted)">km/h</span></div><div class="stat-key">Vitesse moy</div></div>`:''}
+      ${a.elev?`<div class="stat-card"><div class="stat-icon">⛰️</div><div class="stat-val">${a.elev}<span style="font-size:14px;color:var(--muted)">m</span></div><div class="stat-key">Dénivelé</div></div>`:''}
+      ${a.hr?`<div class="stat-card"><div class="stat-icon">♥</div><div class="stat-val">${a.hr}<span style="font-size:14px;color:var(--muted)">bpm</span></div><div class="stat-key">FC moyenne</div></div>`:''}
+    </div>
+    ${a.notes?`<div style="background:var(--bg3);border-radius:10px;padding:12px;font-size:14px;color:var(--muted);margin-bottom:16px">${a.notes}</div>`:''}
+    <button class="btn-secondary" style="color:#ff3b30;border-color:#ff3b3033" onclick="deleteActivity('${a.id}',event);closeDetail()">🗑️ Supprimer</button>
+  `;
+
+  document.getElementById('detailModal').classList.add('open');
+
+  if (a.hasTrace) {
+    setTimeout(async () => {
+      const trace = await dbGet('traces', id);
+      if (!trace || !trace.points.length) return;
+      const mapEl = document.getElementById('detail-map');
+      if (!mapEl) return;
+      const m = L.map(mapEl, { zoomControl:false, attributionControl:false, scrollWheelZoom:false, dragging:false });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(m);
+      const latlngs = trace.points.map(p=>[p.lat,p.lng]);
+      const poly = L.polyline(latlngs, { color:'#ff4d00', weight:4 }).addTo(m);
+      // Start/end markers
+      L.circleMarker(latlngs[0], {radius:6,color:'#00e676',fillColor:'#00e676',fillOpacity:1,weight:2}).addTo(m);
+      L.circleMarker(latlngs[latlngs.length-1], {radius:6,color:'#ff4d00',fillColor:'#ff4d00',fillOpacity:1,weight:2}).addTo(m);
+      m.fitBounds(poly.getBounds(), { padding:[16,16] });
+    }, 200);
+  }
+}
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+function closeDetailIfOverlay(e) {
+  if (e.target === document.getElementById('detailModal')) closeDetail();
+}
+
+// ═══════════════════════════════
+//  MANUAL MODAL
+// ═══════════════════════════════
+function buildSportGrid() {
+  document.getElementById('sportGrid').innerHTML = SPORTS.map(sp =>
+    `<button class="sport-btn ${sp.id===selectedSport?'selected':''}" onclick="selectSport('${sp.id}')">\n      <span class="sport-emoji">${sp.emoji}</span>${sp.label}\n    </button>`
+  ).join('');
+}
+function selectSport(id) { selectedSport=id; buildSportGrid(); }
+function openManualModal() {
+  buildSportGrid();
+  document.getElementById('inputDate').value = isoToday();
+  ['inputTitle','inputDist','inputDuration','inputElev','inputHR','inputNotes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+// ═══════════════════════════════
+//  CRUD
+// ═══════════════════════════════
+async function saveActivity() {
+  const date = document.getElementById('inputDate').value;
+  if (!date) { toast('⚠️ Date requise'); return; }
+  const sp = sportById(selectedSport);
+  const act = {
+    id: genId(), sport: selectedSport,
+    title: document.getElementById('inputTitle').value || sp.label,
+    date,
+    dist: document.getElementById('inputDist').value ? +document.getElementById('inputDist').value : null,
+    duration: document.getElementById('inputDuration').value ? +document.getElementById('inputDuration').value : null,
+    elev: document.getElementById('inputElev').value ? +document.getElementById('inputElev').value : null,
+    hr: document.getElementById('inputHR').value ? +document.getElementById('inputHR').value : null,
+    notes: document.getElementById('inputNotes').value || null,
+    hasTrace: false,
+  };
+  activities.push(act);
+  await dbPut('activities', act);
+  closeModal();
+  toast('✅ Activité enregistrée !');
+  renderDashboard();
+}
+
+async function deleteActivity(id, e) {
+  e.stopPropagation();
+  if (!confirm('Supprimer cette activité ?')) return;
+  activities = activities.filter(a=>a.id!==id);
+  await dbDelete('activities', id);
+  await dbDelete('traces', id).catch(()=>{});
+  renderDashboard();
+  renderHistory();
+  toast('🗑️ Supprimée');
+}
+
+// ═══════════════════════════════
+//  EXPORT
+// ═══════════════════════════════
+async function exportData() {
+  const traces = await dbGetAll('traces');
+  const traceMap = {};
+  traces.forEach(t => traceMap[t.id] = t.points);
+  const out = activities.map(a => ({ ...a, trace: a.hasTrace ? traceMap[a.id] : null }));
+  const blob = new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url; link.download=`mystrava-${isoToday()}.json`;
+  link.click(); URL.revokeObjectURL(url);
+  toast('📤 Export téléchargé');
+}
+
+// ═══════════════════════════════
+//  PWA
+// ═══════════════════════════════
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredInstall=e;
+  document.getElementById('installBanner').style.display='flex';
+});
+function installPWA() {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(()=>{ deferredInstall=null; document.getElementById('installBanner').style.display='none'; });
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+
+// ═══════════════════════════════
+//  INIT
+// ═══════════════════════════════
+initDB().then(async () => {
+  activities = await dbGetAll('activities');
+  renderDashboard();
+});
+</script>
+</body>
+</html>
