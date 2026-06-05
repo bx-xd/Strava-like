@@ -146,7 +146,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 /* GPS RECORD */
 #page-record{display:none}
 #page-record.active{display:flex;flex-direction:column;height:calc(100dvh - calc(72px + var(--safe-bottom)))}
-#record-map{flex:1;z-index:0;min-height:0}
+#record-map{flex:1;z-index:0;min-height:0;max-height:40vh}
 .leaflet-tile{filter:brightness(.8) saturate(.8)}
 #rec-banner{display:none;position:fixed;top:calc(var(--safe-top) + 60px);left:0;right:0;z-index:99;background:rgba(255,59,48,.9);backdrop-filter:blur(10px);padding:8px 16px;font-size:12px;font-weight:700;letter-spacing:1px;text-align:center;text-transform:uppercase;cursor:pointer;border-bottom:1px solid rgba(255,100,80,.4)}
 #rec-banner.visible{display:block}
@@ -169,7 +169,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .wind-hud{font-size:11px;color:var(--blue);background:rgba(41,121,255,.08);border-radius:6px;padding:4px 8px;margin-left:auto}
 .gps-debug{display:none;background:#1a0a00;border:1px solid rgba(255,77,0,.3);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;color:#ff7a33;margin-bottom:10px;line-height:1.6;word-break:break-all;max-height:120px;overflow-y:auto}
 
-/* DETAIL */
+/* DETAIL — full page slide-in */
+#detailModal{align-items:stretch!important}
+#detailModal .modal{border-radius:0;max-height:100dvh;height:100dvh;padding-bottom:calc(16px + var(--safe-bottom))}
+#detailModal .modal-handle{display:none}
+.detail-topbar{display:flex;align-items:center;gap:12px;padding:calc(var(--safe-top) + 12px) 16px 12px;position:sticky;top:0;background:rgba(18,18,26,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:10;margin:0 -20px;padding-left:20px;padding-right:20px}
+.detail-back{background:none;border:none;color:var(--accent);font-size:22px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,77,0,.1)}
+.detail-back:active{background:rgba(255,77,0,.2)}
+.detail-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #detail-map{height:200px;border-radius:12px;overflow:hidden;margin-bottom:14px}
 .elev-profile{background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:14px}
 .elev-profile canvas{max-height:130px}
@@ -754,7 +761,9 @@ function recStop() {
   const durMin=durMs/60000;
   const finalElev=computeElevGain(recPoints);
   const avgPower=recPowerCount>0?Math.round(recPowerSum/recPowerCount):null;
-  recPending={points:recPoints,distKm,durMin,elevGain:finalElev,maxSpeed:recMaxSpeed,avgPower};
+  // Recompute max speed post-hoc from stored points (more reliable than live EMA)
+  const finalMaxSpeed=recPoints.reduce((mx,p)=>p.speed>mx?p.speed:mx, 0);
+  recPending={points:recPoints,distKm,durMin,elevGain:finalElev,maxSpeed:Math.max(recMaxSpeed,finalMaxSpeed),avgPower};
   openSaveGpsModal();
 }
 function recApplyUI() {
@@ -822,8 +831,10 @@ function onGpsPos(pos) {
     speedMs=dt>0?d/dt:0;
   }
   const speedKmh=speedMs*3.6;
+  // Max speed tracked on RAW value (before EMA) to avoid under-estimation
+  if(speedKmh>recMaxSpeed) recMaxSpeed=speedKmh;
+  // EMA only for display smoothness
   recSpeedNow=SPEED_SMOOTH*speedKmh+(1-SPEED_SMOOTH)*recSpeedNow;
-  if(recSpeedNow>recMaxSpeed) recMaxSpeed=recSpeedNow;
 
   // Grade (pente) from last 3 points with altitude
   let grade=0;
@@ -1286,7 +1297,9 @@ async function renderElevationProfile(containerId, points) {
         y: {
           grid: { color: 'rgba(255,255,255,.04)' },
           ticks: { color: '#6b6b85', font: { size: 9 } },
-          min: minAlt ? Math.floor(minAlt / 10) * 10 - 10 : undefined,
+          // Ensure minimum 20m range so flat rides don't look like noise
+          min: minAlt !== null ? Math.floor(minAlt / 10) * 10 - 5 : undefined,
+          max: maxAlt !== null ? Math.max(Math.ceil(maxAlt / 10) * 10 + 5, Math.floor(minAlt/10)*10 - 5 + 20) : undefined,
         }
       }
     }
@@ -1330,15 +1343,21 @@ async function openDetail(id) {
   ].filter(Boolean);
 
   document.getElementById('detailContent').innerHTML=`
-    <div class="modal-title" style="display:flex;align-items:center;gap:10px">${t.emoji} ${a.title||t.label}</div>
-    <div style="color:var(--muted);font-size:13px;margin-bottom:16px">${fmtDate(a.date)}${a.hasTrace?'<span class="gps-badge">📍 GPS</span>':''}</div>
-    ${a.hasTrace?'<div id="detail-map"></div>':''}
-    ${a.hasTrace?`<div class="elev-profile" id="elevProfileBox"><div class="elev-profile-title">Profil altimétrique</div><canvas id="elevProfileChart"></canvas><div class="elev-stats-row"></div></div>`:''}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      ${stats.map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-val" style="font-size:18px">${s.v}</div><div class="stat-key">${s.k}</div></div>`).join('')}
+    <div class="detail-topbar">
+      <button class="detail-back" onclick="closeDetail()">‹</button>
+      <div class="detail-title">${t.emoji} ${a.title||t.label}</div>
+      <div style="font-size:11px;color:var(--muted);flex-shrink:0">${fmtDate(a.date)}</div>
     </div>
-    ${a.notes?`<div style="background:var(--bg3);border-radius:10px;padding:12px;font-size:14px;color:var(--muted);margin-bottom:16px">${a.notes}</div>`:''}
-    <button class="btn-secondary btn-danger" onclick="deleteActivity('${a.id}',event);closeDetail()">🗑️ Supprimer</button>
+    <div style="padding:16px">
+      ${a.hasTrace?'<div id="detail-map"></div>':''}
+      ${a.hasTrace?`<div class="elev-profile" id="elevProfileBox"><div class="elev-profile-title">Profil altimétrique</div><canvas id="elevProfileChart"></canvas><div class="elev-stats-row"></div></div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        ${stats.map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-val" style="font-size:18px">${s.v}</div><div class="stat-key">${s.k}</div></div>`).join('')}
+      </div>
+      ${a.hasTrace?'<span class="gps-badge" style="margin-bottom:12px;display:inline-flex">📍 GPS</span>':''}
+      ${a.notes?`<div style="background:var(--bg3);border-radius:10px;padding:12px;font-size:14px;color:var(--muted);margin-bottom:16px">${a.notes}</div>`:''}
+      <button class="btn-secondary btn-danger" onclick="deleteActivity('${a.id}',event);closeDetail()">🗑️ Supprimer</button>
+    </div>
   `;
   document.getElementById('detailModal').classList.add('open');
 
@@ -1372,6 +1391,7 @@ async function openDetail(id) {
 function closeDetail(){
   document.getElementById('detailModal').classList.remove('open');
   if(charts['elev_profile']){charts['elev_profile'].destroy();delete charts['elev_profile'];}
+  // Restore bottom nav visibility (always visible — detail is a full overlay, not a page switch)
 }
 
 // ══════════════════════════════════════════════════
