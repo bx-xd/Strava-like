@@ -506,6 +506,8 @@ let recMapInited  = false;
 let windSpeed     = 0;   // m/s
 let windDirDeg    = 0;   // meteorological (direction wind comes FROM)
 let windFetchIntv = null;
+let notifIntv     = null;  // interval for lock screen notification updates
+let notifGranted  = false; // notification permission state
 let lastWindFetchPos = null;
 
 // Kalman
@@ -817,20 +819,33 @@ function recStart() {
   windFetchIntv=setInterval(()=>{
     if(recPoints.length>0){const last=recPoints[recPoints.length-1];fetchWind(last.lat,last.lng);}
   },300000);
+  // Start lock screen notification (every 15s)
+  if(notifGranted) {
+    sendRecNotif(); // immediate first update
+    notifIntv = setInterval(sendRecNotif, 15000);
+  }
   toast('📍 Enregistrement démarré');
 }
 function recPause() {
   recState=REC.PAUSED;recPauseStart=Date.now();
   navigator.geolocation.clearWatch(recWatchId);recWatchId=null;
   clearInterval(recTimerIntv);recTimerIntv=null;
-  recApplyUI();updateRecBanner();toast('⏸ Pause');
+  recApplyUI();updateRecBanner();
+  clearInterval(notifIntv);notifIntv=null;
+  sendRecNotif(); // show paused state immediately
+  toast('⏸ Pause');
 }
 function recResume() {
   if(recPauseStart){recPausedMs+=Date.now()-recPauseStart;recPauseStart=null;}
   recState=REC.RECORDING;
   recWatchId=navigator.geolocation.watchPosition(onGpsPos,onGpsErr,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
   recTimerIntv=setInterval(recUpdateHUD,1000);
-  recApplyUI();updateRecBanner();toast('▶ Reprise');
+  recApplyUI();updateRecBanner();
+  if(notifGranted){
+    sendRecNotif();
+    notifIntv=setInterval(sendRecNotif,15000);
+  }
+  toast('▶ Reprise');
 }
 function recStop() {
   if(recState===REC.IDLE) return;
@@ -838,6 +853,8 @@ function recStop() {
   if(recWatchId!==null){navigator.geolocation.clearWatch(recWatchId);recWatchId=null;}
   if(recTimerIntv!==null){clearInterval(recTimerIntv);recTimerIntv=null;}
   if(windFetchIntv!==null){clearInterval(windFetchIntv);windFetchIntv=null;}
+  if(notifIntv!==null){clearInterval(notifIntv);notifIntv=null;}
+  stopRecNotif();
   recState=REC.IDLE;recApplyUI();updateRecBanner();
   if(recPoints.length<2){toast('⚠️ Pas assez de points GPS');recResetHUD();return;}
   const distKm=totalDist(recPoints);
@@ -994,6 +1011,34 @@ function recUpdateHUD() {
   document.getElementById('recVAM').textContent=vam>0?vam:'—';
   document.getElementById('recMaxSpeed').textContent=recMaxSpeed.toFixed(1);
   document.getElementById('recGrade').textContent=(recLastGrade*100).toFixed(1)+'%';
+}
+
+// ══════════════════════════════════════════════════
+//  LOCK SCREEN NOTIFICATION
+// ══════════════════════════════════════════════════
+function sendRecNotif() {
+  if(!notifGranted) return;
+  if(!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+  const dist    = totalDist(recPoints);
+  const nowTs   = recState===REC.PAUSED ? recPauseStart : Date.now();
+  const elapsed = Math.floor((nowTs - recStartTs - recPausedMs) / 1000);
+  navigator.serviceWorker.controller.postMessage({
+    type: 'REC_UPDATE',
+    data: {
+      dist:    dist.toFixed(2),
+      elapsed: fmtSecs(elapsed),
+      speed:   recSpeedNow > 0 ? recSpeedNow.toFixed(1) : '0.0',
+      power:   recPowerNow > 0 ? recPowerNow : null,
+      elev:    Math.round(recElevGain),
+      grade:   (recLastGrade * 100).toFixed(1) + '%',
+      paused:  recState === REC.PAUSED,
+    }
+  });
+}
+function stopRecNotif() {
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'REC_STOP' });
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -1524,6 +1569,20 @@ initDB().then(async()=>{
   activities=await dbGetAll('activities');
   await loadProfile();
   renderDashboard();
+  // Request notification permission (needed for lock screen)
+  if('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(p => { notifGranted = p === 'granted'; });
+  } else {
+    notifGranted = Notification.permission === 'granted';
+  }
+  // Listen for messages from SW (notification actions)
+  if('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', e => {
+      if(!e.data) return;
+      if(e.data.type === 'NOTIF_PAUSE') recAction(); // toggle pause from notif
+      if(e.data.type === 'NOTIF_OPEN')  showPage('record');
+    });
+  }
 });
 </script>
 </body>
