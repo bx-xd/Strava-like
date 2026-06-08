@@ -1,4 +1,4 @@
-const CACHE_NAME = 'velotrack-v12';
+const CACHE_NAME = 'velotrack-v15';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -23,53 +23,53 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
 });
 
-// ── Notification persistante pendant l'enregistrement ─────────
+// â”€â”€ Notification persistante pendant l'enregistrement â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // L'app envoie un message {type:'REC_UPDATE', data:{...}} toutes les 15s
-// Le SW affiche/met à jour la notification sur l'écran de verrouillage
+// Le SW affiche/met Ã  jour la notification sur l'Ã©cran de verrouillage
 
 self.addEventListener('message', e => {
   if (!e.data) return;
 
   if (e.data.type === 'REC_UPDATE') {
     const { dist, elapsed, speed, power, elev, grade, paused } = e.data.data;
-    const icon = paused ? '⏸' : '🚴';
+    const icon = paused ? 'â¸' : 'ðŸš´';
     const status = paused ? 'En pause' : 'En cours';
 
     const lines = [
-      `${dist} km · ${elapsed}`,
-      `${speed} km/h${power ? ' · ' + power + ' W' : ''}`,
-      elev > 0 ? `↑ ${elev}m · pente ${grade}` : `pente ${grade}`,
+      `${dist} km Â· ${elapsed}`,
+      `${speed} km/h${power ? ' Â· ' + power + ' W' : ''}`,
+      elev > 0 ? `â†‘ ${elev}m Â· pente ${grade}` : `pente ${grade}`,
     ].join('\n');
 
-    self.registration.showNotification(`${icon} VeloTrack — ${status}`, {
+    self.registration.showNotification(`${icon} VeloTrack â€” ${status}`, {
       body: lines,
       icon: './icon-192.png',
       badge: './icon-192.png',
-      tag: 'velotrack-recording',   // même tag = remplace la précédente
+      tag: 'velotrack-recording',   // mÃªme tag = remplace la prÃ©cÃ©dente
       renotify: false,
-      silent: true,                  // pas de son à chaque update
-      requireInteraction: true,      // reste visible sur l'écran de verrouillage
+      silent: true,                  // pas de son Ã  chaque update
+      requireInteraction: true,      // reste visible sur l'Ã©cran de verrouillage
       actions: [
-        { action: 'open', title: '📱 Ouvrir' },
-        { action: 'pause', title: paused ? '▶ Reprendre' : '⏸ Pause' },
+        { action: 'open', title: 'ðŸ“± Ouvrir' },
+        { action: 'pause', title: paused ? 'â–¶ Reprendre' : 'â¸ Pause' },
       ],
       data: { url: self.registration.scope }
     });
   }
 
   if (e.data.type === 'REC_STOP') {
-    // Ferme la notification à l'arrêt
+    // Ferme la notification Ã  l'arrÃªt
     self.registration.getNotifications({ tag: 'velotrack-recording' })
       .then(notifs => notifs.forEach(n => n.close()));
   }
 });
 
-// Tap sur la notification → ouvre l'app sur l'onglet record
+// Tap sur la notification â†’ ouvre l'app sur l'onglet record
 self.addEventListener('notificationclick', e => {
   e.notification.close();
 
   if (e.action === 'pause') {
-    // Envoie un message à l'app pour toggle pause
+    // Envoie un message Ã  l'app pour toggle pause
     e.waitUntil(
       self.clients.matchAll({ type:'window', includeUncontrolled:true }).then(clients => {
         if (clients.length > 0) {
