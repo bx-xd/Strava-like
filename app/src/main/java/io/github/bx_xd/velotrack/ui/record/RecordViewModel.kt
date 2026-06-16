@@ -184,7 +184,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         if (speedKmh > maxSpeedKmh) maxSpeedKmh = speedKmh
 
         // Grade
-        val recentWithAlt = points.takeLast(5).filter { it.altRaw != null }
+        val recentWithAlt = points.takeLast(30).filter { it.altRaw != null }
         val grade = computeGrade(recentWithAlt, lat, lng, altSmoothed)
 
         // Bearing
@@ -349,6 +349,21 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
             points      = s.points
         )
         db.activityDao().insert(act)
+
+        // Segment matching — run in background, non-blocking
+        viewModelScope.launch {
+            try {
+                val allSegments = db.segmentDao().getAll()
+                val efforts = io.github.bx_xd.velotrack.utils.SegmentMatcher.match(
+                    activityId   = act.id,
+                    activityDate = act.date,
+                    points       = act.points,
+                    segments     = allSegments
+                )
+                efforts.forEach { db.segmentEffortDao().insert(it) }
+            } catch (_: Exception) {}
+        }
+
         _saveState.value = null
         _uiState.value = RecordUiState()
     }

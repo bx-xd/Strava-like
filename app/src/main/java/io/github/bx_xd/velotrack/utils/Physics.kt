@@ -139,9 +139,9 @@ fun computeGrade(recentPoints: List<GpsPoint>, currentLat: Double, currentLng: D
     if (recentPoints.size < 2 || currentAlt == null) return 0.0
     val ref = recentPoints.first { it.altRaw != null }
     val distM = haversine(ref.lat, ref.lng, currentLat, currentLng) * 1000
-    if (distM < 2.0) return 0.0
+    if (distM < 20.0) return 0.0   // need at least 20m to get a stable grade estimate
     val altDiff = currentAlt - (ref.altRaw ?: currentAlt)
-    return (altDiff / distM).coerceIn(-0.5, 0.5)
+    return (altDiff / distM).coerceIn(-0.30, 0.30)  // max ±30% grade
 }
 
 // ── Formatting utilities ──────────────────────────────────────────

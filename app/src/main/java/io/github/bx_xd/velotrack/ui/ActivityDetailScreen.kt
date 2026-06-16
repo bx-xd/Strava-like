@@ -22,6 +22,7 @@ import io.github.bx_xd.velotrack.data.VeloDatabase
 import io.github.bx_xd.velotrack.model.Activity
 import io.github.bx_xd.velotrack.model.GpsPoint
 import io.github.bx_xd.velotrack.model.Segment
+import io.github.bx_xd.velotrack.model.SegmentEffort
 import io.github.bx_xd.velotrack.ui.dashboard.formatDate
 import io.github.bx_xd.velotrack.ui.dashboard.typeColor
 import io.github.bx_xd.velotrack.utils.*
@@ -40,12 +41,14 @@ fun ActivityDetailScreen(
     activity: Activity,
     onBack: () -> Unit,
     onDelete: () -> Unit,
-    onNewSegment: () -> Unit
+    onNewSegment: () -> Unit,
+    onSegmentDetail: (segmentId: String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val db = remember { VeloDatabase.getInstance(context) }
     val scope = rememberCoroutineScope()
     val segments by db.segmentDao().getByActivityFlow(activity.id).collectAsState(initial = emptyList())
+    val efforts by db.segmentEffortDao().getByActivityFlow(activity.id).collectAsState(initial = emptyList())
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -205,7 +208,20 @@ fun ActivityDetailScreen(
                     segments.forEach { seg ->
                         SegmentRow(
                             segment  = seg,
+                            onClick  = { onSegmentDetail(seg.id) },
                             onDelete = { scope.launch { db.segmentDao().delete(seg) } }
+                        )
+                    }
+                }
+
+                // Passages détectés section
+                if (efforts.isNotEmpty()) {
+                    Spacer(Modifier.height(4.dp))
+                    SectionTitle("Passages détectés")
+                    efforts.forEach { effort ->
+                        EffortRow(
+                            effort  = effort,
+                            onClick = { onSegmentDetail(effort.segmentId) }
                         )
                     }
                 }
@@ -217,14 +233,45 @@ fun ActivityDetailScreen(
 }
 
 @Composable
-private fun SegmentRow(segment: Segment, onDelete: () -> Unit) {
+private fun EffortRow(effort: SegmentEffort, onClick: () -> Unit) {
+    Surface(
+        shape    = RoundedCornerShape(10.dp),
+        color    = BgCard2,
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier          = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("⚡", fontSize = 18.sp)
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(effort.segmentName, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                Text(
+                    "${"%.2f".format(effort.distKm)} km · ${"%.1f".format(effort.avgSpeedKmh)} km/h moy",
+                    fontSize = 12.sp,
+                    color = TextMuted
+                )
+            }
+            Text(
+                formatDurationSecs(effort.durationSecs),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = AccentOrange
+            )
+        }
+    }
+}
+
+@Composable
+private fun SegmentRow(segment: Segment, onClick: () -> Unit = {}, onDelete: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(10.dp),
         color = BgCard2,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp).clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {

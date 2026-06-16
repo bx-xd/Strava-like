@@ -7,6 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import io.github.bx_xd.velotrack.model.Activity
 import io.github.bx_xd.velotrack.model.ActivityConverters
 import io.github.bx_xd.velotrack.model.Segment
+import io.github.bx_xd.velotrack.model.SegmentEffort
 import io.github.bx_xd.velotrack.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
@@ -54,11 +55,33 @@ interface SegmentDao {
     @Query("SELECT * FROM segments WHERE activityId = :activityId ORDER BY createdAt DESC")
     fun getByActivityFlow(activityId: String): Flow<List<Segment>>
 
+    @Query("SELECT * FROM segments WHERE id = :id")
+    suspend fun getById(id: String): Segment?
+
+    @Query("SELECT * FROM segments")
+    suspend fun getAll(): List<Segment>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(segment: Segment)
 
     @Delete
     suspend fun delete(segment: Segment)
+}
+
+// ── SegmentEffort DAO ─────────────────────────────────────────────
+@Dao
+interface SegmentEffortDao {
+    @Query("SELECT * FROM segment_efforts WHERE activityId = :activityId ORDER BY durationSecs ASC")
+    fun getByActivityFlow(activityId: String): Flow<List<SegmentEffort>>
+
+    @Query("SELECT * FROM segment_efforts WHERE segmentId = :segmentId ORDER BY durationSecs ASC")
+    fun getBySegmentFlow(segmentId: String): Flow<List<SegmentEffort>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(effort: SegmentEffort)
+
+    @Query("DELETE FROM segment_efforts WHERE segmentId = :segmentId")
+    suspend fun deleteBySegment(segmentId: String)
 }
 
 // ── Migration 1 → 2 ──────────────────────────────────────────────
@@ -75,10 +98,31 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
+// ── Migration 2 → 3 ──────────────────────────────────────────────
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Add GPS coordinates to segments for matching
+        db.execSQL("ALTER TABLE segments ADD COLUMN startLat REAL NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE segments ADD COLUMN startLng REAL NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE segments ADD COLUMN endLat REAL NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE segments ADD COLUMN endLng REAL NOT NULL DEFAULT 0")
+
+        // Create segment_efforts table
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `segment_efforts` (" +
+            "`id` TEXT NOT NULL, `segmentId` TEXT NOT NULL, `segmentName` TEXT NOT NULL, " +
+            "`activityId` TEXT NOT NULL, `startIndex` INTEGER NOT NULL, " +
+            "`endIndex` INTEGER NOT NULL, `durationSecs` INTEGER NOT NULL, " +
+            "`distKm` REAL NOT NULL, `avgSpeedKmh` REAL NOT NULL, " +
+            "`date` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+        )
+    }
+}
+
 // ── Room Database ─────────────────────────────────────────────────
 @Database(
-    entities = [Activity::class, UserProfile::class, Segment::class],
-    version = 2,
+    entities = [Activity::class, UserProfile::class, Segment::class, SegmentEffort::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(ActivityConverters::class)
@@ -86,6 +130,7 @@ abstract class VeloDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun profileDao(): ProfileDao
     abstract fun segmentDao(): SegmentDao
+    abstract fun segmentEffortDao(): SegmentEffortDao
 
     companion object {
         @Volatile private var INSTANCE: VeloDatabase? = null
@@ -97,7 +142,7 @@ abstract class VeloDatabase : RoomDatabase() {
                     VeloDatabase::class.java,
                     "velotrack.db"
                 )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build().also { INSTANCE = it }
             }
     }

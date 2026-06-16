@@ -30,22 +30,30 @@ public final class VeloDatabase_Impl extends VeloDatabase {
 
   private volatile ProfileDao _profileDao;
 
+  private volatile SegmentDao _segmentDao;
+
+  private volatile SegmentEffortDao _segmentEffortDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `activities` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `type` TEXT NOT NULL, `date` INTEGER NOT NULL, `distKm` REAL NOT NULL, `durationMin` REAL NOT NULL, `elevGainM` INTEGER NOT NULL, `maxSpeedKmh` REAL NOT NULL, `avgPowerW` INTEGER, `avgHrBpm` INTEGER, `notes` TEXT, `hasTrace` INTEGER NOT NULL, `points` TEXT NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `profile` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `weightKg` REAL NOT NULL, `bikeWeightKg` REAL NOT NULL, `cda` REAL NOT NULL, `crr` REAL NOT NULL, `efficiency` REAL NOT NULL, PRIMARY KEY(`id`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `segments` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `activityId` TEXT NOT NULL, `startIndex` INTEGER NOT NULL, `endIndex` INTEGER NOT NULL, `startLat` REAL NOT NULL, `startLng` REAL NOT NULL, `endLat` REAL NOT NULL, `endLng` REAL NOT NULL, `distKm` REAL NOT NULL, `elevGainM` INTEGER NOT NULL, `durationSecs` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `segment_efforts` (`id` TEXT NOT NULL, `segmentId` TEXT NOT NULL, `segmentName` TEXT NOT NULL, `activityId` TEXT NOT NULL, `startIndex` INTEGER NOT NULL, `endIndex` INTEGER NOT NULL, `durationSecs` INTEGER NOT NULL, `distKm` REAL NOT NULL, `avgSpeedKmh` REAL NOT NULL, `date` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6235a383166d078b0aeccdd32cc95554')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3060b98a71578c137f31d2e861c08f89')");
       }
 
       @Override
       public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS `activities`");
         db.execSQL("DROP TABLE IF EXISTS `profile`");
+        db.execSQL("DROP TABLE IF EXISTS `segments`");
+        db.execSQL("DROP TABLE IF EXISTS `segment_efforts`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -129,9 +137,52 @@ public final class VeloDatabase_Impl extends VeloDatabase {
                   + " Expected:\n" + _infoProfile + "\n"
                   + " Found:\n" + _existingProfile);
         }
+        final HashMap<String, TableInfo.Column> _columnsSegments = new HashMap<String, TableInfo.Column>(13);
+        _columnsSegments.put("id", new TableInfo.Column("id", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("activityId", new TableInfo.Column("activityId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("startIndex", new TableInfo.Column("startIndex", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("endIndex", new TableInfo.Column("endIndex", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("startLat", new TableInfo.Column("startLat", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("startLng", new TableInfo.Column("startLng", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("endLat", new TableInfo.Column("endLat", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("endLng", new TableInfo.Column("endLng", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("distKm", new TableInfo.Column("distKm", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("elevGainM", new TableInfo.Column("elevGainM", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("durationSecs", new TableInfo.Column("durationSecs", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegments.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysSegments = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesSegments = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoSegments = new TableInfo("segments", _columnsSegments, _foreignKeysSegments, _indicesSegments);
+        final TableInfo _existingSegments = TableInfo.read(db, "segments");
+        if (!_infoSegments.equals(_existingSegments)) {
+          return new RoomOpenHelper.ValidationResult(false, "segments(io.github.bx_xd.velotrack.model.Segment).\n"
+                  + " Expected:\n" + _infoSegments + "\n"
+                  + " Found:\n" + _existingSegments);
+        }
+        final HashMap<String, TableInfo.Column> _columnsSegmentEfforts = new HashMap<String, TableInfo.Column>(10);
+        _columnsSegmentEfforts.put("id", new TableInfo.Column("id", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("segmentId", new TableInfo.Column("segmentId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("segmentName", new TableInfo.Column("segmentName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("activityId", new TableInfo.Column("activityId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("startIndex", new TableInfo.Column("startIndex", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("endIndex", new TableInfo.Column("endIndex", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("durationSecs", new TableInfo.Column("durationSecs", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("distKm", new TableInfo.Column("distKm", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("avgSpeedKmh", new TableInfo.Column("avgSpeedKmh", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSegmentEfforts.put("date", new TableInfo.Column("date", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysSegmentEfforts = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesSegmentEfforts = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoSegmentEfforts = new TableInfo("segment_efforts", _columnsSegmentEfforts, _foreignKeysSegmentEfforts, _indicesSegmentEfforts);
+        final TableInfo _existingSegmentEfforts = TableInfo.read(db, "segment_efforts");
+        if (!_infoSegmentEfforts.equals(_existingSegmentEfforts)) {
+          return new RoomOpenHelper.ValidationResult(false, "segment_efforts(io.github.bx_xd.velotrack.model.SegmentEffort).\n"
+                  + " Expected:\n" + _infoSegmentEfforts + "\n"
+                  + " Found:\n" + _existingSegmentEfforts);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "6235a383166d078b0aeccdd32cc95554", "2cf1a0eecbbf47dd5d88deb84a97ee24");
+    }, "3060b98a71578c137f31d2e861c08f89", "355f009840a9253a349d77fafec5bcc2");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -142,7 +193,7 @@ public final class VeloDatabase_Impl extends VeloDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "activities","profile");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "activities","profile","segments","segment_efforts");
   }
 
   @Override
@@ -153,6 +204,8 @@ public final class VeloDatabase_Impl extends VeloDatabase {
       super.beginTransaction();
       _db.execSQL("DELETE FROM `activities`");
       _db.execSQL("DELETE FROM `profile`");
+      _db.execSQL("DELETE FROM `segments`");
+      _db.execSQL("DELETE FROM `segment_efforts`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -169,6 +222,8 @@ public final class VeloDatabase_Impl extends VeloDatabase {
     final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
     _typeConvertersMap.put(ActivityDao.class, ActivityDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(ProfileDao.class, ProfileDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(SegmentDao.class, SegmentDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(SegmentEffortDao.class, SegmentEffortDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -211,6 +266,34 @@ public final class VeloDatabase_Impl extends VeloDatabase {
           _profileDao = new ProfileDao_Impl(this);
         }
         return _profileDao;
+      }
+    }
+  }
+
+  @Override
+  public SegmentDao segmentDao() {
+    if (_segmentDao != null) {
+      return _segmentDao;
+    } else {
+      synchronized(this) {
+        if(_segmentDao == null) {
+          _segmentDao = new SegmentDao_Impl(this);
+        }
+        return _segmentDao;
+      }
+    }
+  }
+
+  @Override
+  public SegmentEffortDao segmentEffortDao() {
+    if (_segmentEffortDao != null) {
+      return _segmentEffortDao;
+    } else {
+      synchronized(this) {
+        if(_segmentEffortDao == null) {
+          _segmentEffortDao = new SegmentEffortDao_Impl(this);
+        }
+        return _segmentEffortDao;
       }
     }
   }

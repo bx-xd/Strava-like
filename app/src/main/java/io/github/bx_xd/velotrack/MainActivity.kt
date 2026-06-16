@@ -47,6 +47,9 @@ sealed class Screen(val route: String) {
     object SegmentEditor : Screen("segmentEditor/{activityId}") {
         fun createRoute(id: String) = "segmentEditor/$id"
     }
+    object SegmentDetail : Screen("segmentDetail/{segmentId}") {
+        fun createRoute(id: String) = "segmentDetail/$id"
+    }
 }
 
 data class BottomNavItem(
@@ -191,16 +194,19 @@ fun VeloTrackApp() {
                     .find { it.id == activityId }
                 if (activity != null) {
                     ActivityDetailScreen(
-                        activity     = activity,
-                        onBack       = { navController.popBackStack() },
-                        onDelete     = {
+                        activity        = activity,
+                        onBack          = { navController.popBackStack() },
+                        onDelete        = {
                             kotlinx.coroutines.MainScope().launch {
                                 dashboardVm.deleteActivity(activity)
                             }
                             navController.popBackStack()
                         },
-                        onNewSegment = {
+                        onNewSegment    = {
                             navController.navigate(Screen.SegmentEditor.createRoute(activity.id))
+                        },
+                        onSegmentDetail = { segmentId ->
+                            navController.navigate(Screen.SegmentDetail.createRoute(segmentId))
                         }
                     )
                 }
@@ -211,6 +217,13 @@ fun VeloTrackApp() {
                     activityId = activityId,
                     onBack     = { navController.popBackStack() },
                     onSaved    = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.SegmentDetail.route) { backStackEntry ->
+                val segmentId = backStackEntry.arguments?.getString("segmentId") ?: return@composable
+                SegmentDetailScreen(
+                    segmentId = segmentId,
+                    onBack    = { navController.popBackStack() }
                 )
             }
         }

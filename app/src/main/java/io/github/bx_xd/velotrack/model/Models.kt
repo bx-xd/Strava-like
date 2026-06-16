@@ -51,10 +51,29 @@ data class Segment(
     val activityId: String,
     val startIndex: Int,
     val endIndex: Int,
+    val startLat: Double = 0.0,
+    val startLng: Double = 0.0,
+    val endLat: Double = 0.0,
+    val endLng: Double = 0.0,
     val distKm: Double,
     val elevGainM: Int,
     val durationSecs: Int,
     val createdAt: Long
+)
+
+// ── SegmentEffort — one detected passage through a segment ────────
+@Entity(tableName = "segment_efforts")
+data class SegmentEffort(
+    @PrimaryKey val id: String,          // "${segmentId}_${activityId}"
+    val segmentId: String,
+    val segmentName: String,
+    val activityId: String,
+    val startIndex: Int,
+    val endIndex: Int,
+    val durationSecs: Int,
+    val distKm: Double,
+    val avgSpeedKmh: Double,
+    val date: Long
 )
 
 // ── Room TypeConverters ───────────────────────────────────────────
