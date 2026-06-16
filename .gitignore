@@ -1,0 +1,17 @@
+# Build outputs
+build/
+app/build/
+.gradle/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local config
+local.properties
+
+# Signing keys (NEVER commit)
+*.keystore
+*.jks
