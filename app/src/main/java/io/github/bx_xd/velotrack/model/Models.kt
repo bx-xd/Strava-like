@@ -43,6 +43,20 @@ data class Activity(
     val points: List<GpsPoint>         // stored as JSON via TypeConverter
 )
 
+// ── Segment (sub-section of an activity defined by the user) ─────
+@Entity(tableName = "segments")
+data class Segment(
+    @PrimaryKey val id: String,
+    val name: String,
+    val activityId: String,
+    val startIndex: Int,
+    val endIndex: Int,
+    val distKm: Double,
+    val elevGainM: Int,
+    val durationSecs: Int,
+    val createdAt: Long
+)
+
 // ── Room TypeConverters ───────────────────────────────────────────
 class ActivityConverters {
     @TypeConverter

@@ -27,6 +27,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import io.github.bx_xd.velotrack.model.Activity
 import io.github.bx_xd.velotrack.ui.*
+import io.github.bx_xd.velotrack.ui.SegmentEditorScreen
 import io.github.bx_xd.velotrack.ui.dashboard.*
 import io.github.bx_xd.velotrack.ui.history.*
 import io.github.bx_xd.velotrack.ui.profile.*
@@ -42,6 +43,9 @@ sealed class Screen(val route: String) {
     object Profile   : Screen("profile")
     object Detail    : Screen("detail/{activityId}") {
         fun createRoute(id: String) = "detail/$id"
+    }
+    object SegmentEditor : Screen("segmentEditor/{activityId}") {
+        fun createRoute(id: String) = "segmentEditor/$id"
     }
 }
 
@@ -183,21 +187,31 @@ fun VeloTrackApp() {
             }
             composable(Screen.Detail.route) { backStackEntry ->
                 val activityId = backStackEntry.arguments?.getString("activityId") ?: return@composable
-                // Find activity from dashboard state
                 val activity = dashboardVm.state.collectAsState().value.activities
                     .find { it.id == activityId }
                 if (activity != null) {
                     ActivityDetailScreen(
-                        activity = activity,
-                        onBack   = { navController.popBackStack() },
-                        onDelete = {
+                        activity     = activity,
+                        onBack       = { navController.popBackStack() },
+                        onDelete     = {
                             kotlinx.coroutines.MainScope().launch {
                                 dashboardVm.deleteActivity(activity)
                             }
                             navController.popBackStack()
+                        },
+                        onNewSegment = {
+                            navController.navigate(Screen.SegmentEditor.createRoute(activity.id))
                         }
                     )
                 }
+            }
+            composable(Screen.SegmentEditor.route) { backStackEntry ->
+                val activityId = backStackEntry.arguments?.getString("activityId") ?: return@composable
+                SegmentEditorScreen(
+                    activityId = activityId,
+                    onBack     = { navController.popBackStack() },
+                    onSaved    = { navController.popBackStack() }
+                )
             }
         }
     }

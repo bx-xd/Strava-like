@@ -131,7 +131,7 @@ fun estimatePower(
     val fAccel = totalMassKg * accelMs2
 
     val power = (fRoll + fAero + fClimb + fAccel) * speedMs / efficiency
-    return maxOf(0, power.roundToInt())
+    return power.roundToInt().coerceIn(0, 2000)
 }
 
 // ── Grade calculation from recent points ─────────────────────────

@@ -63,13 +63,14 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
         val filtered = activities.filter { it.date >= since }
 
         return when (period) {
-            StatPeriod.WEEK -> buildDayBuckets(filtered, 7)
-            StatPeriod.MONTH -> buildDayBuckets(filtered, 30)
-            StatPeriod.YEAR -> buildMonthBuckets(filtered)
+            StatPeriod.WEEK  -> buildDayBuckets(filtered, StatPeriod.WEEK)
+            StatPeriod.MONTH -> buildDayBuckets(filtered, StatPeriod.MONTH)
+            StatPeriod.YEAR  -> buildMonthBuckets(filtered)
         }
     }
 
-    private fun buildDayBuckets(activities: List<Activity>, days: Int): StatsUiState {
+    private fun buildDayBuckets(activities: List<Activity>, period: StatPeriod): StatsUiState {
+        val days = period.days
         val labels = mutableListOf<String>()
         val dist = mutableListOf<Float>()
         val elev = mutableListOf<Float>()
@@ -94,7 +95,7 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
             labels.add(if (days == 7) dayNames[Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -i) }.get(Calendar.DAY_OF_WEEK) - 1]
                        else if (i % 5 == 0) sdf.format(Date(dayStart)) else "")
         }
-        return StatsUiState(StatPeriod.WEEK, labels, dist, elev, speed)
+        return StatsUiState(period, labels, dist, elev, speed)
     }
 
     private fun buildMonthBuckets(activities: List<Activity>): StatsUiState {

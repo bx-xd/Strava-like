@@ -3,6 +3,12 @@ package io.github.bx_xd.velotrack.ui.record
 import android.content.Context
 import android.graphics.Color as AndroidColor
 import androidx.compose.animation.*
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -185,13 +191,27 @@ fun RecordHud(
                     shape = RoundedCornerShape(8.dp),
                     color = BlueWind.copy(alpha = 0.12f)
                 ) {
-                    Text(
-                        text = "💨 ${"%.0f".format(wind.speedKmh)} km/h ${wind.directionArrow}",
+                    Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = BlueWind
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        if (wind.temperatureCelsius != null) {
+                            Text(
+                                text = "${wind.weatherEmoji} ${"%.0f".format(wind.temperatureCelsius)}°",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary
+                            )
+                            Text("·", fontSize = 13.sp, color = TextMuted)
+                        }
+                        Text(
+                            text = "💨 ${"%.0f".format(wind.speedKmh)} km/h ${wind.directionArrow}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = BlueWind
+                        )
+                    }
                 }
             }
         }
@@ -228,6 +248,12 @@ fun RecordHud(
                 HudStat("${"%.1f".format(state.currentGrade * 100)}%", "pente", Modifier.weight(1f))
             }
         }
+
+        // Elevation profile chart — live, draws as GPS points come in
+        ElevationProfileChart(
+            points   = state.points,
+            modifier = Modifier.fillMaxWidth().height(62.dp)
+        )
 
         // Action buttons
         Row(
@@ -414,5 +440,97 @@ private fun SummaryItem(label: String, value: String) {
         Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
         Text(label.uppercase(), fontSize = 10.sp, color = TextMuted, letterSpacing = 0.5.sp)
     }
+}
+
+// ── Live elevation profile ────────────────────────────────────────
+@Composable
+private fun ElevationProfileChart(points: List<GpsPoint>, modifier: Modifier = Modifier) {
+    val ptsWithAlt = remember(points.size) { points.filter { it.altRaw != null } }
+
+    if (ptsWithAlt.size < 5) {
+        // Reserve space with a subtle placeholder
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            if (points.isNotEmpty()) {
+                Text("Profil d'altitude…", fontSize = 10.sp, color = TextMuted)
+            }
+        }
+        return
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            LineChart(ctx).apply {
+                description.isEnabled = false
+                legend.isEnabled = false
+                setDrawGridBackground(false)
+                setTouchEnabled(false)
+                isDoubleTapToZoomEnabled = false
+                axisRight.isEnabled = false
+                setViewPortOffsets(40f, 4f, 4f, 18f)
+                setBackgroundColor(AndroidColor.TRANSPARENT)
+
+                axisLeft.apply {
+                    textColor = AndroidColor.parseColor("#6B6B85")
+                    textSize = 8f
+                    gridColor = AndroidColor.parseColor("#1A1A2A")
+                    axisLineColor = AndroidColor.TRANSPARENT
+                    setLabelCount(3, true)
+                }
+                xAxis.apply {
+                    position = XAxis.XAxisPosition.BOTTOM
+                    textColor = AndroidColor.parseColor("#6B6B85")
+                    textSize = 8f
+                    gridColor = AndroidColor.TRANSPARENT
+                    axisLineColor = AndroidColor.TRANSPARENT
+                    setDrawGridLines(false)
+                    setLabelCount(4, false)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float) = "%.1f".format(value)
+                    }
+                }
+            }
+        },
+        update = { chart ->
+            if (ptsWithAlt.size < 5) { chart.clear(); return@AndroidView }
+
+            // Subsample to max 150 entries for performance
+            val step = maxOf(1, ptsWithAlt.size / 150)
+            val sampled = ptsWithAlt.filterIndexed { i, _ ->
+                i % step == 0 || i == ptsWithAlt.size - 1
+            }
+
+            // Build entries with cumulative distance as X axis
+            var cumDistKm = 0.0
+            val entries = ArrayList<Entry>(sampled.size)
+            for (i in sampled.indices) {
+                if (i > 0) {
+                    cumDistKm += io.github.bx_xd.velotrack.utils.haversine(
+                        sampled[i - 1].lat, sampled[i - 1].lng,
+                        sampled[i].lat,     sampled[i].lng
+                    )
+                }
+                entries.add(Entry(cumDistKm.toFloat(), sampled[i].altRaw!!.toFloat()))
+            }
+
+            val accent = AndroidColor.parseColor("#FF4D00")
+            val ds = LineDataSet(entries, "").apply {
+                color     = accent
+                lineWidth = 1.5f
+                setDrawCircles(false)
+                setDrawValues(false)
+                setDrawFilled(true)
+                fillColor = accent
+                fillAlpha = 55
+                mode           = LineDataSet.Mode.CUBIC_BEZIER
+                cubicIntensity = 0.1f
+            }
+            chart.data = LineData(ds)
+            chart.invalidate()
+        }
+    )
 }
 

@@ -5,21 +5,27 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import io.github.bx_xd.velotrack.data.VeloDatabase
 import io.github.bx_xd.velotrack.model.Activity
 import io.github.bx_xd.velotrack.model.GpsPoint
+import io.github.bx_xd.velotrack.model.Segment
 import io.github.bx_xd.velotrack.ui.dashboard.formatDate
 import io.github.bx_xd.velotrack.ui.dashboard.typeColor
 import io.github.bx_xd.velotrack.utils.*
+import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
@@ -33,8 +39,14 @@ import org.osmdroid.views.overlay.Polyline
 fun ActivityDetailScreen(
     activity: Activity,
     onBack: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onNewSegment: () -> Unit
 ) {
+    val context = LocalContext.current
+    val db = remember { VeloDatabase.getInstance(context) }
+    val scope = rememberCoroutineScope()
+    val segments by db.segmentDao().getByActivityFlow(activity.id).collectAsState(initial = emptyList())
+
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
@@ -172,7 +184,59 @@ fun ActivityDetailScreen(
                     }
                 }
 
+                // Segments section
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SectionTitle("Segments")
+                    IconButton(onClick = onNewSegment) {
+                        Icon(Icons.Default.Add, contentDescription = "Nouveau segment", tint = AccentOrange)
+                    }
+                }
+                if (segments.isEmpty()) {
+                    Text(
+                        "Aucun segment — touchez + pour en créer un.",
+                        fontSize = 13.sp,
+                        color = TextMuted
+                    )
+                } else {
+                    segments.forEach { seg ->
+                        SegmentRow(
+                            segment  = seg,
+                            onDelete = { scope.launch { db.segmentDao().delete(seg) } }
+                        )
+                    }
+                }
+
                 Spacer(Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SegmentRow(segment: Segment, onDelete: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = BgCard2,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(segment.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                Text(
+                    "${"%.2f".format(segment.distKm)} km · ${segment.elevGainM} m D+ · ${formatDurationSecs(segment.durationSecs)}",
+                    fontSize = 12.sp,
+                    color = TextMuted
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Supprimer", tint = RedStop, modifier = Modifier.size(18.dp))
             }
         }
     }

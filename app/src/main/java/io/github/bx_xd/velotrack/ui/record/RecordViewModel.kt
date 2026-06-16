@@ -77,6 +77,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
     private var powerCount = 0
     private var prevSpeedMs = 0.0
     private var prevSpeedTs = 0L
+    private var smoothedSpeedMs = 0.0
     private var currentWindData: WindData? = null
     private var profile: UserProfile = UserProfile()
 
@@ -156,6 +157,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
                 altEma.reset()
                 prevSpeedMs = 0.0
                 prevSpeedTs = 0L
+                smoothedSpeedMs = 0.0
             }
         }
 
@@ -191,12 +193,14 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
             bearing(last.lat, last.lng, lat, lng)
         } else 0.0
 
-        // Acceleration
+        // Acceleration — EMA-smoothed speed avoids GPS noise spikes in power calc
         val nowTs = raw.ts
+        smoothedSpeedMs = if (prevSpeedTs == 0L) speedMs
+                          else SPEED_EMA_ALPHA * speedMs + (1 - SPEED_EMA_ALPHA) * smoothedSpeedMs
         val accel = if (prevSpeedTs > 0 && nowTs - prevSpeedTs < 5000L) {
-            (speedMs - prevSpeedMs) / ((nowTs - prevSpeedTs) / 1000.0)
+            ((smoothedSpeedMs - prevSpeedMs) / ((nowTs - prevSpeedTs) / 1000.0)).coerceIn(-1.5, 1.5)
         } else 0.0
-        prevSpeedMs = speedMs
+        prevSpeedMs = smoothedSpeedMs
         prevSpeedTs = nowTs
 
         // Power
@@ -221,6 +225,8 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         // Store point with RAW altitude (computeElevGain does its own smoothing)
         val filteredPoint = raw.copy(lat = lat, lng = lng)
         points.add(filteredPoint)
+
+        if (points.size == 1) fetchWindNow()
 
         // Update UI state
         val dist = totalDistanceKm(points)
@@ -256,6 +262,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         powerCount = 0
         prevSpeedMs = 0.0
         prevSpeedTs = 0L
+        smoothedSpeedMs = 0.0
         kalman.reset()
         altEma.reset()
 
@@ -281,6 +288,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         altEma.reset()
         prevSpeedMs = 0.0
         prevSpeedTs = 0L
+        smoothedSpeedMs = 0.0
 
         _uiState.value = _uiState.value.copy(state = RecState.RECORDING)
         startGpsService()
