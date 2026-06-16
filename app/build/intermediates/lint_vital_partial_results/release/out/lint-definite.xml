@@ -1,0 +1,1404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.2.0" type="incidents">
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="66"
+            column="32"
+            startOffset="2694"
+            endLine="73"
+            endColumn="6"
+            endOffset="3002"/>
+    </incident>
+
+    <incident
+        id="InvalidFragmentVersionForActivityResult"
+        severity="fatal"
+        message="Upgrade Fragment version to at least 1.3.0.">
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*javaDir*0}/io/github/bx_xd/velotrack/MainActivity.kt"
+            line="75"
+            column="34"
+            startOffset="3037"
+            endLine="77"
+            endColumn="34"
+            endOffset="3149"/>
+    </incident>
+
+</incidents>

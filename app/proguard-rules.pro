@@ -1,0 +1,4 @@
+-keep class io.github.bx_xd.velotrack.** { *; }
+-keep class org.osmdroid.** { *; }
+-keep class com.github.mikephil.** { *; }
+-keep class com.google.android.gms.** { *; }
