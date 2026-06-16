@@ -1,5 +1,6 @@
 package io.github.bx_xd.velotrack.utils
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -36,21 +37,34 @@ data class WindData(
 }
 
 object WindService {
-    private val client = OkHttpClient()
+    private const val TAG = "VeloTrack.Wind"
+
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 
     suspend fun fetch(lat: Double, lng: Double): WindData? = withContext(Dispatchers.IO) {
+        val url = "https://api.open-meteo.com/v1/forecast" +
+            "?latitude=${String.format(java.util.Locale.US, "%.4f", lat)}&longitude=${String.format(java.util.Locale.US, "%.4f", lng)}" +
+            "&current=wind_speed_10m,wind_direction_10m,temperature_2m,apparent_temperature," +
+            "relative_humidity_2m,precipitation,weather_code" +
+            "&wind_speed_unit=ms&forecast_days=1"
+        Log.d(TAG, "fetch → $url")
         try {
-            val url = "https://api.open-meteo.com/v1/forecast" +
-                "?latitude=${"%.4f".format(lat)}&longitude=${"%.4f".format(lng)}" +
-                "&current=wind_speed_10m,wind_direction_10m,temperature_2m,apparent_temperature," +
-                "relative_humidity_2m,precipitation,weather_code" +
-                "&wind_speed_unit=ms&forecast_days=1"
             val req = Request.Builder().url(url).build()
             val resp = client.newCall(req).execute()
-            if (!resp.isSuccessful) return@withContext null
-            val json = JSONObject(resp.body?.string() ?: return@withContext null)
-            val c = json.getJSONObject("current")
-            WindData(
+            Log.d(TAG, "HTTP ${resp.code}")
+            if (!resp.isSuccessful) {
+                Log.w(TAG, "Non-2xx response: ${resp.code}")
+                return@withContext null
+            }
+            val body = resp.body?.string() ?: run {
+                Log.w(TAG, "Empty body")
+                return@withContext null
+            }
+            val c = JSONObject(body).getJSONObject("current")
+            val result = WindData(
                 speedMs            = c.getDouble("wind_speed_10m"),
                 directionDeg       = c.getDouble("wind_direction_10m"),
                 temperatureCelsius = if (c.has("temperature_2m")) c.getDouble("temperature_2m") else null,
@@ -59,6 +73,11 @@ object WindService {
                 humidityPct        = if (c.has("relative_humidity_2m")) c.getInt("relative_humidity_2m") else null,
                 precipitationMm    = if (c.has("precipitation")) c.getDouble("precipitation") else null
             )
-        } catch (_: Exception) { null }
+            Log.d(TAG, "OK → ${result.temperatureCelsius}°C, ${result.speedKmh} km/h")
+            result
+        } catch (e: Exception) {
+            Log.e(TAG, "fetch failed: ${e.javaClass.simpleName}: ${e.message}")
+            null
+        }
     }
 }

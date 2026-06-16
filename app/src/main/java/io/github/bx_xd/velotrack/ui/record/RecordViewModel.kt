@@ -7,8 +7,10 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.LocationServices
 import io.github.bx_xd.velotrack.data.VeloDatabase
 import io.github.bx_xd.velotrack.model.Activity
 import io.github.bx_xd.velotrack.model.BikeType
@@ -25,7 +27,10 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 // ── Recording state ───────────────────────────────────────────────
-enum class RecState { IDLE, RECORDING, PAUSED }
+enum class RecState { IDLE, RECORDING, PAUSED, AUTO_PAUSED }
+
+private const val AUTO_PAUSE_SPEED_MS  = 0.8   // m/s ≈ 3 km/h
+private const val AUTO_PAUSE_DELAY_MS  = 5_000L // stopped for 5s → auto-pause
 
 data class RecordUiState(
     val state: RecState = RecState.IDLE,
@@ -40,6 +45,7 @@ data class RecordUiState(
     val accuracyM: Float = 0f,
     val gpsAvailable: Boolean = false,
     val windData: WindData? = null,
+    val windError: String? = null,   // non-null = last fetch failed, contains error type
     val points: List<GpsPoint> = emptyList()
 )
 
@@ -83,6 +89,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
 
     private val kalman = KalmanState()
     private val altEma = AltitudeEma()
+    private var lastMovingTs = 0L   // ts of last point with speed > AUTO_PAUSE_SPEED_MS
 
     // ── Timer ─────────────────────────────────────────────────────
     private var timerJob: Job? = null
@@ -131,6 +138,15 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
     // ── Core GPS processing ───────────────────────────────────────
     private fun processGpsPoint(raw: GpsPoint) {
         val state = _uiState.value.state
+
+        // When auto-paused: GPS still runs, only watch for movement to auto-resume
+        if (state == RecState.AUTO_PAUSED) {
+            if (raw.accuracy <= GPS_MAX_ACCURACY_M && raw.speed > AUTO_PAUSE_SPEED_MS) {
+                triggerAutoResume()
+            }
+            return
+        }
+
         if (state != RecState.RECORDING) return
         if (raw.accuracy > GPS_MAX_ACCURACY_M) return
 
@@ -142,6 +158,15 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
 
         // Kalman filter on position
         val (lat, lng) = kalman.filter(raw.lat, raw.lng, raw.accuracy)
+
+        // Auto-pause: track last timestamp with meaningful speed
+        val rawSpeedMs = if (raw.speed > 0) raw.speed else 0.0
+        if (rawSpeedMs > AUTO_PAUSE_SPEED_MS) {
+            lastMovingTs = raw.ts
+        } else if (lastMovingTs > 0 && raw.ts - lastMovingTs > AUTO_PAUSE_DELAY_MS) {
+            triggerAutoPause()
+            return
+        }
 
         // Min distance filter
         if (points.isNotEmpty()) {
@@ -164,12 +189,20 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         // Altitude
         val altSmoothed = altEma.filter(raw.altRaw)
 
-        // Live elevation gain (on smoothed alt)
-        if (altSmoothed != null && lastAltSmoothed != null) {
-            val diff = altSmoothed - lastAltSmoothed!!
-            if (diff > ELEV_THRESHOLD_M) elevGainM += diff
+        // Live elevation gain: reference-altitude approach (EMA diff per point is too small)
+        // lastAltSmoothed acts as a baseline that only advances on significant changes
+        if (altSmoothed != null) {
+            val ref = lastAltSmoothed
+            if (ref == null) {
+                lastAltSmoothed = altSmoothed
+            } else {
+                val rise = altSmoothed - ref
+                when {
+                    rise >= ELEV_THRESHOLD_M  -> { elevGainM += rise; lastAltSmoothed = altSmoothed }
+                    rise <= -ELEV_THRESHOLD_M -> { lastAltSmoothed = altSmoothed }
+                }
+            }
         }
-        if (altSmoothed != null) lastAltSmoothed = altSmoothed
 
         // Speed: prefer native GPS speed
         val speedMs = if (raw.speed > 0.1) raw.speed
@@ -263,37 +296,64 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
         prevSpeedMs = 0.0
         prevSpeedTs = 0L
         smoothedSpeedMs = 0.0
+        lastMovingTs = 0L
         kalman.reset()
         altEma.reset()
 
         _uiState.value = RecordUiState(state = RecState.RECORDING)
         startGpsService()
         startTimer()
+        fetchLastKnownLocation()  // show weather before first GPS point arrives
     }
 
     fun pauseRecording() {
         pauseStartTs = System.currentTimeMillis()
+        lastMovingTs = 0L
         _uiState.value = _uiState.value.copy(state = RecState.PAUSED)
         stopGpsService()
         timerJob?.cancel()
     }
 
     fun resumeRecording() {
+        val wasAutoPaused = _uiState.value.state == RecState.AUTO_PAUSED
         if (pauseStartTs > 0L) {
             pausedMs += System.currentTimeMillis() - pauseStartTs
             pauseStartTs = 0L
         }
-        // Reset per-resume state
         kalman.reset()
         altEma.reset()
         prevSpeedMs = 0.0
         prevSpeedTs = 0L
         smoothedSpeedMs = 0.0
+        lastMovingTs = System.currentTimeMillis()
 
         _uiState.value = _uiState.value.copy(state = RecState.RECORDING)
-        startGpsService()
+        if (!wasAutoPaused) startGpsService()  // GPS already running during auto-pause
         startTimer()
         fetchWindNow()
+    }
+
+    private fun triggerAutoPause() {
+        pauseStartTs = System.currentTimeMillis()
+        lastMovingTs = 0L
+        timerJob?.cancel()
+        _uiState.value = _uiState.value.copy(state = RecState.AUTO_PAUSED)
+        // GPS service intentionally kept running to detect movement
+    }
+
+    private fun triggerAutoResume() {
+        if (pauseStartTs > 0L) {
+            pausedMs += System.currentTimeMillis() - pauseStartTs
+            pauseStartTs = 0L
+        }
+        kalman.reset()
+        altEma.reset()
+        prevSpeedMs = 0.0
+        prevSpeedTs = 0L
+        smoothedSpeedMs = 0.0
+        lastMovingTs = System.currentTimeMillis()
+        _uiState.value = _uiState.value.copy(state = RecState.RECORDING)
+        startTimer()
     }
 
     fun stopRecording() {
@@ -302,7 +362,7 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
             pauseStartTs = 0L
         }
         timerJob?.cancel()
-        stopGpsService()
+        stopGpsService()  // safe even when called from AUTO_PAUSED (GPS still running)
 
         if (points.size < 2) {
             _uiState.value = RecordUiState()
@@ -417,21 +477,54 @@ class RecordViewModel(app: Application) : AndroidViewModel(app), GpsTrackingServ
     private fun fetchWindPeriodically() {
         viewModelScope.launch {
             while (true) {
-                delay(300_000) // every 5 min
-                fetchWindNow()
+                // Retry every 30s until first success, then every 5 min
+                val interval = if (currentWindData == null) 30_000L else 300_000L
+                delay(interval)
+                if (_uiState.value.state == RecState.RECORDING || _uiState.value.state == RecState.AUTO_PAUSED) {
+                    fetchWindNow()
+                }
             }
         }
     }
 
-    fun fetchWindNow() {
-        if (points.isEmpty()) return
-        val last = points.last()
+    fun fetchWindNow(lat: Double? = null, lng: Double? = null) {
+        val fetchLat: Double
+        val fetchLng: Double
+        if (lat != null && lng != null) {
+            fetchLat = lat; fetchLng = lng
+        } else if (points.isNotEmpty()) {
+            val last = points.last(); fetchLat = last.lat; fetchLng = last.lng
+        } else {
+            return
+        }
         viewModelScope.launch {
-            val wind = WindService.fetch(last.lat, last.lng)
+            val wind = WindService.fetch(fetchLat, fetchLng)
             if (wind != null) {
                 currentWindData = wind
                 _uiState.value = _uiState.value.copy(windData = wind)
             }
+        }
+    }
+
+    private fun fetchLastKnownLocation() {
+        try {
+            val fused = LocationServices.getFusedLocationProviderClient(getApplication<Application>())
+            fused.lastLocation
+                .addOnSuccessListener { loc ->
+                    if (loc != null) {
+                        Log.d("VeloTrack.Wind", "lastLocation → ${loc.latitude}, ${loc.longitude}")
+                        fetchWindNow(loc.latitude, loc.longitude)
+                    } else {
+                        Log.w("VeloTrack.Wind", "lastLocation = null (no cached position yet)")
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("VeloTrack.Wind", "lastLocation failed: ${e.message}")
+                }
+        } catch (e: SecurityException) {
+            Log.e("VeloTrack.Wind", "lastLocation permission denied: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("VeloTrack.Wind", "lastLocation exception: ${e.message}")
         }
     }
 

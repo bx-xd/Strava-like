@@ -173,7 +173,7 @@ fun RecordHud(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // GPS status + wind
+        // GPS status + auto-pause badge + wind
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -185,6 +185,21 @@ fun RecordHud(
                 fontSize = 12.sp,
                 color = TextMuted
             )
+            if (state.state == RecState.AUTO_PAUSED) {
+                Spacer(Modifier.width(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = YellowPause.copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        "⏸ Pause auto",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        fontSize = 11.sp,
+                        color = YellowPause,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
             Spacer(Modifier.weight(1f))
             state.windData?.let { wind ->
                 Surface(
@@ -281,7 +296,7 @@ fun RecordHud(
                     )
                     StopButton(onClick = onStop)
                 }
-                RecState.PAUSED -> {
+                RecState.PAUSED, RecState.AUTO_PAUSED -> {
                     VeloButton(
                         text    = "▶  Reprendre",
                         onClick = onResume,
